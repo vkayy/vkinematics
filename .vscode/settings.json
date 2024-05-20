@@ -1,0 +1,8 @@
+{
+	"files.associations": {
+		"__node_handle": "cpp",
+		"iostream": "cpp",
+		"__locale": "cpp",
+		"string": "cpp"
+	}
+}
