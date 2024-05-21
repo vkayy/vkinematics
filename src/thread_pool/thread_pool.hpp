@@ -1,25 +1,3 @@
-// MIT License
-
-// Copyright (c) 2021 Jean Tampon
-
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
-
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-// SOFTWARE.
-
 #pragma once
 
 #include <functional>
@@ -33,43 +11,66 @@ namespace tp {
     struct TaskQueue {
         std::queue<std::function<void()>> tasks;
         std::mutex mutex;
-        std::atomic<uint32_t> remaining_tasks = 0;
+        std::condition_variable condition;
+        std::atomic<bool> stop;
+        std::atomic<uint32_t> incomplete_tasks;
 
-        template<typename TCallback>
-        void addTask(TCallback&& callback) {
-            std::lock_guard<std::mutex> lock_guard{mutex};
-            tasks.push(std::forward<TCallback>(callback));
-            remaining_tasks++;
+        TaskQueue()
+            : stop{false}
+            , incomplete_tasks{0}
+        {}
+
+        template<typename TaskCallback>
+        void enqueueTask(TaskCallback&& callback) {
+            {
+                std::lock_guard<std::mutex> lock_guard{mutex};
+                tasks.push(std::forward<TaskCallback>(callback));
+                incomplete_tasks++;
+            }
+            condition.notify_one();
         }
 
-        void getTask(std::function<void()>& target_callback) {
-            std::lock_guard<std::mutex> lock_guard{mutex};
-            if (tasks.empty()) return;
+        bool dequeueTask(std::function<void()>& target_callback) {
+            std::unique_lock<std::mutex> lock{mutex};
+            condition.wait(lock, [this]{
+                return !tasks.empty() || stop;
+            });
+            if (tasks.empty()) return false;
             target_callback = std::move(tasks.front());
             tasks.pop();
+            return true;
         }
 
-        static void wait() {
-            std::this_thread::yield();
+        void completeAllTasks() {
+            std::unique_lock<std::mutex> lock{mutex};
+            condition.wait(lock, [this] {
+                return !incomplete_tasks;
+            });
         }
 
-        void waitForCompletion() const {
-            while (remaining_tasks > 0) {
-                wait();
+        void finishTask() {
+            {
+                std::lock_guard<std::mutex> lock{mutex};
+                incomplete_tasks--;
             }
+            condition.notify_all();
         }
 
-        void workDone() {
-            remaining_tasks--;
+        void shutdownTasks() {
+            {
+                std::lock_guard<std::mutex> lock{mutex};
+                stop = true;
+            }
+            condition.notify_all();
         }
     };
 
     struct Worker {
         uint32_t id;
         std::thread thread;
-        std::function<void()> task;
-        bool running = true;
         TaskQueue* queue;
+        bool thread_active = true;
+        std::function<void()> task;
 
         Worker() = default;
 
@@ -77,26 +78,21 @@ namespace tp {
             : queue{&queue}
             , id{id}
         {
-            thread = std::thread([this](){
-                run();
-            });
+            thread = std::thread([this](){ run(); });
         }
 
         void run() {
-            while (running) {
-                queue->getTask(task);
-                if (!task) {
-                    TaskQueue::wait();
-                } else {
+            while (thread_active) {
+                if (queue->dequeueTask(task)) {
                     task();
-                    queue->workDone();
-                    task = nullptr;
+                    queue->finishTask();
                 }
+                task = nullptr;
             }
         }
 
-        void stop() {
-            running = false;
+        void deactivateThread() {
+            thread_active = false;
             thread.join();
         }
     };
@@ -111,39 +107,40 @@ namespace tp {
             : thread_count{thread_count}
         {
             workers.reserve(thread_count);
-            for (uint32_t i=thread_count; i>0; i--) {
-                workers.emplace_back(queue, static_cast<uint32_t>(workers.size()));
+            for (uint32_t i=0; i<thread_count; i++) {
+                workers.emplace_back(queue, i);
             }
         }
 
-        virtual ~ThreadPool() {
+        ~ThreadPool() {
+            queue.shutdownTasks();
             for (Worker &worker : workers) {
-                worker.stop();
+                worker.deactivateThread();
             }
         }
 
-        template<typename TCallback>
-        void addTask(TCallback&& callback) {
-            queue.addTask(std::forward<TCallback>(callback));
+        template<typename TaskCallback>
+        void enqueueTask(TaskCallback&& callback) {
+            queue.enqueueTask(std::forward<TaskCallback>(callback));
         }
 
-        void waitForCompletion() const {
-            queue.waitForCompletion();
+        void completeAllTasks() {
+            queue.completeAllTasks();
         }
 
-        template<typename TCallback>
-        void dispatch(uint32_t element_count, TCallback&& callback) {
+        template<typename TaskCallback>
+        void dispatch(uint32_t element_count, TaskCallback&& callback) {
             const uint32_t batch_size = element_count / thread_count;
-            for (uint32_t i=0; i<thread_count; ++i) {
+            for (uint32_t i=0; i<thread_count; i++) {
                 const uint32_t start = batch_size * i;
                 const uint32_t end = start + batch_size;
-                addTask([start, end, &callback](){ callback(start, end); });
+                enqueueTask([start, end, &callback](){ callback(start, end); });
             }
             if (batch_size * thread_count < element_count) {
                 const uint32_t start = batch_size * thread_count;
                 callback(start, element_count);
             }
-            waitForCompletion();
+            completeAllTasks();
         }
     };
 }

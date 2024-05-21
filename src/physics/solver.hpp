@@ -260,24 +260,24 @@ private:
         const uint32_t last_cell = 2 * thread_count * partition_size;
 
         for (uint32_t idx=0; idx<thread_count; idx++) {
-            thread_pool.addTask([this, idx, partition_size]{
+            thread_pool.enqueueTask([this, idx, partition_size]{
                 uint32_t const start = 2 * idx * partition_size;
                 uint32_t const end = start + partition_size;
                 solvePartitionThreaded(start, end);
             });
         }
         if (last_cell < grid.cells.size()) {
-            thread_pool.addTask([this, last_cell]{
+            thread_pool.enqueueTask([this, last_cell]{
                 solvePartitionThreaded(last_cell, grid.cells.size());
             });
         }
         for (uint32_t idx=0; idx<thread_count; idx++) {
-            thread_pool.addTask([this, idx, partition_size]{
+            thread_pool.enqueueTask([this, idx, partition_size]{
                 uint32_t const start = (2 * idx + 1) * partition_size;
                 uint32_t const end = start + partition_size;
                 solvePartitionThreaded(start, end);
             });
         }
-        thread_pool.waitForCompletion();
+        thread_pool.completeAllTasks();
     }
 };

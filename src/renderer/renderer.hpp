@@ -7,9 +7,9 @@ constexpr float OUTLINE_THICKNESS = 2.0f;
 class Renderer {
 public:
     explicit
-    Renderer(sf::RenderTarget &target) : target{target} {
-
-    }
+    Renderer(sf::RenderTarget &target)
+        : target{target}
+    {}
     void render(const Solver &solver) const {
         sf::CircleShape circle{1.0f};
         circle.setPointCount(32);

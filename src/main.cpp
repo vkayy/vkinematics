@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <SFML/Graphics.hpp>
 
-#include "utils/rng.hpp"
+#include "maths/rng.hpp"
 #include "physics/solver.hpp"
 #include "renderer/renderer.hpp"
 #include "thread_pool/thread_pool.hpp"
@@ -11,7 +11,7 @@
 constexpr int32_t WINDOW_WIDTH = 1920;
 constexpr int32_t WINDOW_HEIGHT = 1080;
 
-constexpr float MAX_OBJECT_COUNT = 3000;
+constexpr float MAX_OBJECT_COUNT = 1500;
 constexpr float MIN_RADIUS = 10.0f;
 constexpr float MAX_RADIUS = 15.0f;
 constexpr float MAX_ANGLE = 1.0f;
@@ -60,6 +60,7 @@ int main() {
 
     Renderer renderer{window};
     sf::Clock clock;
+    RNG<float> rng{};
 
     while (window.isOpen()) {
         sf::Event event{};
@@ -73,7 +74,7 @@ int main() {
         }
         if (solver.objects.size() < MAX_OBJECT_COUNT && clock.getElapsedTime().asSeconds() >= SPAWN_DELAY) {
             clock.restart();
-            VerletObject &object = solver.addObject(sf::Vector2f(SPAWN_POSITION), RNGf::getRange(MIN_RADIUS, MAX_RADIUS));
+            VerletObject &object = solver.addObject(sf::Vector2f(SPAWN_POSITION), rng.getRange(MIN_RADIUS, MAX_RADIUS));
             const float t = solver.time;
             object.colour = getRainbow(t);
             const float angle = MAX_ANGLE * sin(t) + M_PI * 0.5f;

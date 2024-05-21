@@ -1,12 +1,10 @@
 #pragma once
 
-#include "uniform-grid.hpp"
-
 constexpr uint8_t CELL_CAPACITY = 4;
 
 struct CollisionCell {
-    uint32_t object_count = 0;
-    uint32_t objects[CELL_CAPACITY] = {};
+    uint32_t object_count;
+    uint32_t objects[CELL_CAPACITY];
 
     CollisionCell() = default;
 
@@ -29,14 +27,21 @@ struct CollisionCell {
     }
 };
 
-struct UniformCollisionGrid : UniformGrid<CollisionCell> {
+struct UniformCollisionGrid {
+    std::vector<CollisionCell> cells;
+    int32_t width, height;
+
     UniformCollisionGrid()
-        : UniformGrid<CollisionCell>()
+        : width{}
+        , height{}
     {}
 
     UniformCollisionGrid(int32_t width, int32_t height)
-        : UniformGrid<CollisionCell>(width, height)
-    {}
+        : width{width}
+        , height{height}
+    {
+        cells.resize(width * height);
+    }
 
     void addObject(uint32_t x, uint32_t y, uint32_t object_id) {
         const uint32_t idx = x * height + y;
