@@ -18,10 +18,10 @@ At the moment, the engine simulates in 2D only. But, with greater processing pow
 
 ## Instructions
 
-To run this locally, `cd` into the directory of the repository, then execute `mkdir build`. Next, `cd` into the `build` directory, and call these commands:
+To run this locally, `cd` into the directory of the repository, then call `mkdir build`. Next, `cd` into the `build` directory, and call these commands:
 
 ```
 cmake ..
 cmake --build .
-./multiThreadedPhysicsSimulator
+./multiThreadedPhysicsEngine
 ```
