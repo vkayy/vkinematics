@@ -4,7 +4,7 @@ A 2D physics engine which deterministically resolves and visualises the collisio
 
 ## How does it work?
 
-This engine uses Verlet Integration to more accurately model the movement of rigid bodies in a dynamic system.
+This engine uses Verlet Integration to accurately model the movement of rigid bodies in a dynamic system.
 
 In order to handle multithreading, a thread pool is used, parallelising the work of both the broad phase and narrow phases of collision resolution across workers.
 
