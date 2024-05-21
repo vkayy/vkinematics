@@ -1,12 +1,6 @@
-#include <iostream>
-#include <cmath>
-#include <algorithm>
 #include <SFML/Graphics.hpp>
 
-#include "maths/rng.hpp"
-#include "physics/solver.hpp"
-#include "renderer/renderer.hpp"
-#include "thread_pool/thread_pool.hpp"
+#include "simulation/simulation.hpp"
 
 constexpr int32_t WINDOW_WIDTH = 1920;
 constexpr int32_t WINDOW_HEIGHT = 1080;
@@ -28,67 +22,22 @@ constexpr int8_t COLLISION_RESOLVER = 0;
 
 const sf::Vector2f SPAWN_POSITION = {WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2};
 
-static sf::Color getRainbow(float t) {
-    const float r = sin(t);
-    const float g = sin(t + 0.33f * 2.0f * M_PI);
-    const float b = sin(t + 0.66f * 2.0f * M_PI);
-    return {
-        static_cast<uint8_t>(255.0f * r * r),
-        static_cast<uint8_t>(255.0f * g * g),
-        static_cast<uint8_t>(255.0f * b * b)
-    };
-}
-
 int main() {
-    constexpr int32_t window_width = WINDOW_WIDTH;
-    constexpr int32_t window_height = WINDOW_HEIGHT;
-    
-    sf::ContextSettings settings;
-    settings.antialiasingLevel = 1;
-    sf::RenderWindow window(sf::VideoMode(window_width, window_height), "Multithreaded Physics Engine", sf::Style::Default, settings);
-
-    tp::ThreadPool thread_pool(THREAD_COUNT);
-
-    Solver solver(
-        sf::Vector2f(WINDOW_WIDTH, WINDOW_HEIGHT),
-        SUBSTEPS,
+    runSimulation(
+        WINDOW_HEIGHT,
+        WINDOW_WIDTH,
+        MAX_OBJECT_COUNT,
+        MIN_RADIUS,
         MAX_RADIUS,
-        FRAMERATE_LIMIT,
+        MAX_ANGLE,
         SPEED_COLOURING,
-        thread_pool
+        SPAWN_DELAY,
+        SPAWN_SPEED,
+        FRAMERATE_LIMIT,
+        THREAD_COUNT,
+        SUBSTEPS,
+        COLLISION_RESOLVER,
+        SPAWN_POSITION
     );
-
-    Renderer renderer{window};
-    sf::Clock clock;
-    RNG<float> rng{};
-
-    while (window.isOpen()) {
-        sf::Event event{};
-        while (window.pollEvent(event)) {
-            if (event.type == sf::Event::Closed || sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)) {
-                window.close();
-            } else {
-                solver.setAttractor(sf::Keyboard::isKeyPressed(sf::Keyboard::A));
-                solver.setRepeller(sf::Keyboard::isKeyPressed(sf::Keyboard::R));
-            }
-        }
-        if (solver.objects.size() < MAX_OBJECT_COUNT && clock.getElapsedTime().asSeconds() >= SPAWN_DELAY) {
-            clock.restart();
-            VerletObject &object = solver.addObject(sf::Vector2f(SPAWN_POSITION), rng.getRange(MIN_RADIUS, MAX_RADIUS));
-            const float t = solver.time;
-            object.colour = getRainbow(t);
-            const float angle = MAX_ANGLE * sin(t) + M_PI * 0.5f;
-            solver.setObjectVelocity(object, SPAWN_SPEED * sf::Vector2f{cos(angle), sin(angle)});
-        }
-        switch (COLLISION_RESOLVER) {
-            case 0: solver.updateThreaded(); break;
-            case 1: solver.updateCellular(); break;
-            case 2: solver.updateNaive(); break;
-            default: solver.updateThreaded();
-        }
-        window.clear(sf::Color::White);
-        renderer.render(solver);
-        window.display();
-    }
     return 0;
 }
