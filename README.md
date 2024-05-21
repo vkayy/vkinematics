@@ -4,11 +4,11 @@ A 2D physics engine which visualises and deterministically resolves the collisio
 
 ## How does it work?
 
-This uses Verlet integration to more accurately model the movement of rigid bodies in a dynamic system.
+This engine uses Verlet integration to more accurately model the movement of rigid bodies in a dynamic system.
 
-In order to handle multithreading, a thread pool is used, parallelising the work of both broad-phase and narrow-phase collision resolution across workers.
+In order to handle multithreading, a thread pool is used, parallelising the work of both the broad phase and narrow phases of collision resolution across workers.
 
-Currently, the means of spatial partitioning is an AABB-based uniform collision grid. However, due to the dynamics of a collision system, I have plans of upgrading to a Sphere (Circle) Tree.
+Currently, the broad phase involves spatial partitioning into a uniform collision grid, whilst the narrow phase is AABB-based. The linear structure of a uniform grid enables an elegant means of multithreading, in contrast to the non-linear quadtree or circle tree structures, hence the choice.
 
 ## What are the next steps?
 
