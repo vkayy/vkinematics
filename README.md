@@ -16,7 +16,23 @@ At the moment, the engine simulates in 2D only. But, with greater processing pow
 
 ## How do I use this?
 
-To run this locally, `cd` into the directory of the repository, then call `mkdir build`. Next, `cd` into the `build` directory, and call these commands:
+First of all, for sake of rendering, SFML has to be installed as it is a dependency.
+
+For Linux, use your preferred package manager:
+```
+sudo apt-get install libsfml-dev
+```
+
+For MacOS, use Homebrew:
+```
+brew install sfml
+```
+
+For Windows, download from the website:
+
+https://www.sfml-dev.org/download.php
+
+Next, assuming you've downloaded the repository now, to run the engine, `cd` into the directory of the repository, then call `mkdir build`. Then, `cd` into the `build` directory, and call these commands:
 
 ```
 cmake ..
@@ -24,4 +40,17 @@ cmake --build .
 ./multiThreadedPhysicsEngine
 ```
 
-In `src/main.cpp`, there are also numerous constants that you can modify to your liking at the top of the file. Note that the default `SPAWN_POSITION` is the centre of the window, but this can be modified also.
+In `src/main.cpp`, there are also numerous constants that you can modify to your liking at the top of the file:
+- `WINDOW_WIDTH`: The width of the window.
+- `WINDOW_HEIGHT`: the width of the window.
+- `MAX_OBJECT_COUNT`: The maximum object count.
+- `MIN_RADIUS`: The minimum object radius.
+- `MAX_RADIUS`: The maximum object radius.
+- `MAX_ANGLE`: The maximum angle of object spawn velocity.
+- `SPEED_COLOURING`: If true, objects are coloured based on speed. By default, they are coloured by rainbow.
+- `SPAWN_DELAY`: The delay between consecutive object spawns.
+- `SPAWN_SPEED`: The speed at which an object spawns.
+- `FRAMERATE_LIMIT`: The maximum framerate.
+- `THREAD_COUNT`: The number of threads used (experiment with this, see what works best for you).
+
+Note that the default `SPAWN_POSITION` is the centre of the window, but this can be modified also.
