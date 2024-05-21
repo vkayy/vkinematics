@@ -41,6 +41,7 @@ Now, whenever you want to re-run a simulation, it is as simple as `Up Arrow` the
 You can use the keys `A` and `R` to respectively activate an attractor/repeller in the centre of the simulation space.
 
 In `src/main.cpp`, there are also numerous parameters that you can modify to your liking at the top of the file:
+- `RENDER_DISPLAY`: If true, the simulation is displayed. Otherwise, it is not.
 - `WINDOW_WIDTH`: The width of the window.
 - `WINDOW_HEIGHT`: the width of the window.
 - `MAX_OBJECT_COUNT`: The maximum object count.
