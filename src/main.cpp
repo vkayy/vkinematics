@@ -69,7 +69,7 @@ int main() {
                 window.close();
             } else {
                 solver.setAttractor(sf::Keyboard::isKeyPressed(sf::Keyboard::A));
-                solver.setRepellor(sf::Keyboard::isKeyPressed(sf::Keyboard::R));
+                solver.setRepeller(sf::Keyboard::isKeyPressed(sf::Keyboard::R));
             }
         }
         if (solver.objects.size() < MAX_OBJECT_COUNT && clock.getElapsedTime().asSeconds() >= SPAWN_DELAY) {

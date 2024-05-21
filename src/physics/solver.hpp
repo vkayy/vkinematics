@@ -13,7 +13,7 @@ constexpr float MARGIN_WIDTH = 2.0f;
 constexpr float GRAVITY_CONST = 1000.0f;
 constexpr float RESPONSE_COEF = 0.1f;
 constexpr float ATTRACTOR_STRENGTH = 2000.0f;
-constexpr float REPELLOR_STRENGTH = 2000.0f;
+constexpr float REPELLER_STRENGTH = 2000.0f;
 
 
 struct Solver {
@@ -27,7 +27,7 @@ public:
     float cell_size;
 
     bool attractor_active = false;
-    bool repellor_active = false;
+    bool repeller_active = false;
     bool speed_colouring = false;
 
     int32_t substeps;
@@ -86,8 +86,8 @@ public:
         attractor_active = active;
     }
 
-    void setRepellor(bool active) {
-        repellor_active = active;
+    void setRepeller(bool active) {
+        repeller_active = active;
     }
 
     void setObjectVelocity(VerletObject &object, sf::Vector2f velocity) {
@@ -114,11 +114,11 @@ private:
         }
     }
 
-    void applyRepellor(VerletObject &object) {
+    void applyRepeller(VerletObject &object) {
         const sf::Vector2f displacement = center - object.curr_position;
         const float distance = sqrt(displacement.x * displacement.x + displacement.y * displacement.y);
         if (distance > 0) {
-            sf::Vector2f force = (displacement / distance) * REPELLOR_STRENGTH;
+            sf::Vector2f force = (displacement / distance) * REPELLER_STRENGTH;
             object.accelerate(-force);
         }
     }
@@ -216,8 +216,8 @@ private:
             if (attractor_active) {
                 applyAttractor(object);
             }
-            if (repellor_active) {
-                applyRepellor(object);
+            if (repeller_active) {
+                applyRepeller(object);
             }
             object.updatePosition(dt);
             if (speed_colouring) {
@@ -235,8 +235,8 @@ private:
                 if (attractor_active) {
                     applyAttractor(object);
                 }
-                if (repellor_active) {
-                    applyRepellor(object);
+                if (repeller_active) {
+                    applyRepeller(object);
                 }
                 object.updatePosition(dt);
                 if (speed_colouring) {
