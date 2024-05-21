@@ -2,7 +2,7 @@
 
 ## What is it?
 
-A 2D physics engine which visualises and deterministically resolves the collisions of thousands of rigid bodies using a custom-written Verlet integration library.
+A 2D physics engine which visualises and deterministically resolves the collisions of thousands of rigid bodies using a custom-written Verlet Integration library.
 
 ## How does it work?
 
