@@ -5,19 +5,21 @@
 
 #include "solver.hpp"
 #include "renderer.hpp"
+#include "thread_pool.hpp"
 #include "utils/number_generator.hpp"
 
 constexpr int32_t WINDOW_WIDTH = 1920;
 constexpr int32_t WINDOW_HEIGHT = 1080;
-constexpr float MIN_RADIUS = 5.0f;
-constexpr float MAX_RADIUS = 25.0f;
-constexpr float MAX_OBJECT_COUNT = 1000;
+constexpr float MIN_RADIUS = 10.0f;
+constexpr float MAX_RADIUS = 15.0f;
+constexpr float MAX_OBJECT_COUNT = 2000;
 constexpr float MAX_ANGLE = 1.0f;
 constexpr int32_t FRAMERATE_LIMIT = 60;
 constexpr bool SPEED_COLOURING = true;
 constexpr int32_t SUBSTEPS = 8;
-constexpr float SPAWN_DELAY = 0.01f;
+constexpr float SPAWN_DELAY = 0.005f;
 constexpr float SPAWN_SPEED = 10.0f;
+const int32_t THREAD_COUNT = 10;
 const sf::Vector2f SPAWN_POSITION = {WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2};
 
 static sf::Color getRainbow(float t)
@@ -40,15 +42,17 @@ int main()
     sf::ContextSettings settings;
     settings.antialiasingLevel = 10;
     sf::RenderWindow window(sf::VideoMode(window_width, window_height), "Multithreaded Physics Simulator", sf::Style::Default, settings);
-    const uint framerate_limit = 60;
-    window.setFramerateLimit(framerate_limit);
+
+    
+    tp::ThreadPool thread_pool(THREAD_COUNT);
 
     Solver solver(
         sf::Vector2f(WINDOW_WIDTH, WINDOW_HEIGHT),
         SUBSTEPS,
         std::max(MAX_RADIUS, WINDOW_WIDTH / 30.0f),
         FRAMERATE_LIMIT,
-        SPEED_COLOURING
+        SPEED_COLOURING,
+        thread_pool
     );
     Renderer renderer{window};
 
@@ -71,8 +75,7 @@ int main()
             solver.setObjectVelocity(object, SPAWN_SPEED * sf::Vector2f{cos(angle), sin(angle)});
             object.colour = getRainbow(t);
         }
-        // solver.updateNaive();
-        solver.updateCellular();
+        solver.updateThreaded();
         window.clear(sf::Color::White);
         renderer.render(solver);
         window.display();
