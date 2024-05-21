@@ -10,10 +10,6 @@ In order to handle multithreading, a thread pool is used, parallelising the work
 
 Currently, the broad phase involves spatial partitioning into a uniform collision grid, whilst the narrow phase is AABB-based. The linear structure of a uniform grid enables an elegant means of multithreading, in contrast to the non-linear quadtree or circle tree structures, hence the choice.
 
-## What are the next steps?
-
-At the moment, the engine simulates in 2D only. But, with greater processing power access (via university), I have intentions of implementing a 3D engine.
-
 ## How do I use this?
 
 First of all, for sake of rendering, SFML has to be installed as it is a dependency.
@@ -64,3 +60,7 @@ For the `COLLISION_RESOLVER` parameter, there are three options:
 - Any other invalid option will default to multithreading.
 
 Also, note that the default `SPAWN_POSITION` is the centre of the window, but this can be modified also (ensure this is in terms of `WINDOW_WIDTH` and `WINDOW_HEIGHT`, as your objects may spawn out of bounds).
+
+## What are the next steps?
+
+At the moment, the engine simulates in 2D only. But, with greater processing power access (via university), I have intentions of implementing a 3D engine.
