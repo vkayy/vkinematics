@@ -42,7 +42,7 @@ cmake --build .
 
 Now, whenever you want to re-run a simulation, it is as simple as `Up Arrow` then `Enter` (i.e., running that block of commands again).
 
-In `src/main.cpp`, there are also numerous constants that you can modify to your liking at the top of the file:
+In `src/main.cpp`, there are also numerous parameters that you can modify to your liking at the top of the file:
 - `WINDOW_WIDTH`: The width of the window.
 - `WINDOW_HEIGHT`: the width of the window.
 - `MAX_OBJECT_COUNT`: The maximum object count.
@@ -55,4 +55,10 @@ In `src/main.cpp`, there are also numerous constants that you can modify to your
 - `FRAMERATE_LIMIT`: The maximum framerate.
 - `THREAD_COUNT`: The number of threads used (experiment with this, see what works best for you).
 
-Note that the default `SPAWN_POSITION` is the centre of the window, but this can be modified also.
+For the `COLLISION_RESOLVER` parameter, there are three options:
+- 0: Multithreaded and optimised with uniform collision grid spatial partitioning.
+- 1: Single-threaded and optimised with uniform collision grid spatial partitioning.
+- 2: Single-threaded and brute force collision resolution.
+- Any other invalid option will default to multithreading.
+
+Also, not that the default `SPAWN_POSITION` is the centre of the window, but this can be modified also (ensure this is in terms of `WINDOW_WIDTH` and `WINDOW_HEIGHT`, as your objects may spawn out of bounds).

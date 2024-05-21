@@ -24,6 +24,8 @@ constexpr int32_t FRAMERATE_LIMIT = 60;
 constexpr int32_t THREAD_COUNT = 10;
 constexpr int32_t SUBSTEPS = 8;
 
+constexpr int8_t COLLISION_RESOLVER = 0;
+
 const sf::Vector2f SPAWN_POSITION = {WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2};
 
 static sf::Color getRainbow(float t) {
@@ -77,7 +79,12 @@ int main() {
             const float angle = MAX_ANGLE * sin(t) + M_PI * 0.5f;
             solver.setObjectVelocity(object, SPAWN_SPEED * sf::Vector2f{cos(angle), sin(angle)});
         }
-        solver.updateThreaded();
+        switch (COLLISION_RESOLVER) {
+            case 0: solver.updateThreaded(); break;
+            case 1: solver.updateCellular(); break;
+            case 2: solver.updateNaive(); break;
+            default: solver.updateThreaded();
+        }
         window.clear(sf::Color::White);
         renderer.render(solver);
         window.display();
