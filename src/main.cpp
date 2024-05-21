@@ -2,6 +2,7 @@
 
 #include "simulation/simulation.hpp"
 
+constexpr bool RENDER_DISPLAY = true;
 constexpr int32_t WINDOW_WIDTH = 1920;
 constexpr int32_t WINDOW_HEIGHT = 1080;
 
@@ -24,6 +25,7 @@ const sf::Vector2f SPAWN_POSITION = {WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2};
 
 int main() {
     runSimulation(
+        RENDER_DISPLAY,
         WINDOW_HEIGHT,
         WINDOW_WIDTH,
         MAX_OBJECT_COUNT,

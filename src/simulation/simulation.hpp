@@ -1,3 +1,5 @@
+#pragma once
+
 #include <SFML/Graphics.hpp>
 
 #include "../maths/rng.hpp"
@@ -17,6 +19,7 @@ sf::Color getRainbowColour(float t) {
 }
 
 void runSimulation(
+    bool render_display,
     int32_t window_height,
     int32_t window_width,
     float max_object_count,
@@ -76,8 +79,10 @@ void runSimulation(
             case 2: solver.updateNaive(); break;
             default: solver.updateThreaded();
         }
-        window.clear(sf::Color::White);
-        renderer.render(solver);
-        window.display();
+        if (render_display) {
+            window.clear(sf::Color::White);
+            renderer.render(solver);
+            window.display();
+        }
     }
 }
