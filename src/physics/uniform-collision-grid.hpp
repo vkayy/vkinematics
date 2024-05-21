@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../utils/grid.hpp"
+#include "uniform-grid.hpp"
 
 constexpr uint8_t CELL_CAPACITY = 4;
 
@@ -29,22 +29,22 @@ struct CollisionCell {
     }
 };
 
-struct CollisionGrid : Grid<CollisionCell> {
-    CollisionGrid()
-        : Grid<CollisionCell>()
+struct UniformCollisionGrid : UniformGrid<CollisionCell> {
+    UniformCollisionGrid()
+        : UniformGrid<CollisionCell>()
     {}
 
-    CollisionGrid(int32_t width, int32_t height)
-        : Grid<CollisionCell>(width, height)
+    UniformCollisionGrid(int32_t width, int32_t height)
+        : UniformGrid<CollisionCell>(width, height)
     {}
 
     void addObject(uint32_t x, uint32_t y, uint32_t object_id) {
         const uint32_t idx = x * height + y;
-        data[idx].addObject(object_id);
+        cells[idx].addObject(object_id);
     }
 
     void clear() {
-        for (auto &cell : data) {
+        for (auto &cell : cells) {
             cell.clear();
         }
     }

@@ -5,7 +5,7 @@
 #include <SFML/Graphics.hpp>
 
 #include "verlet.hpp"
-#include "collision-grid.hpp"
+#include "uniform-collision-grid.hpp"
 #include "../thread_pool/thread_pool.hpp"
 
 constexpr int DEFAULT_SUBSTEPS = 8;
@@ -21,7 +21,7 @@ public:
     sf::Vector2f gravity = {0.0f, -GRAVITY_CONST};
     std::vector<VerletObject> objects;
     sf::Vector2f simulation_size;
-    CollisionGrid grid;
+    UniformCollisionGrid grid;
 
     sf::Vector2f center;
     float cell_size;
@@ -122,25 +122,30 @@ private:
             object.accelerate(-force);
         }
     }
-    
-    void applyAttractor() {
-        for (auto &object : objects) {
-            const sf::Vector2f displacement = center - object.curr_position;
-            const float distance = sqrt(displacement.x * displacement.x + displacement.y * displacement.y);
-            if (distance > 0) {
-                sf::Vector2f force = (displacement / distance) * ATTRACTOR_STRENGTH;
-                object.accelerate(force);
-            }
+
+    void applyBorders(VerletObject &object) {
+        const float margin = MARGIN_WIDTH + object.radius;
+        sf::Vector2f collision_factor = {0.0f, 0.0f};
+        if (object.curr_position.x > simulation_size.x - margin) {
+            collision_factor += {(object.curr_position.x - simulation_size.x + margin), 0.0f};
+        } else if (object.curr_position.x < margin) {
+            collision_factor -= {(margin - object.curr_position.x), 0.0f};
         }
+        if (object.curr_position.y > simulation_size.y - margin) {
+            collision_factor += {0.0f, (object.curr_position.y - simulation_size.y + margin)};
+        } else if (object.curr_position.y < margin) {
+            collision_factor -= {0.0f, (margin - object.curr_position.y)};
+        }
+        object.curr_position -= 0.5f * collision_factor * RESPONSE_COEF;
     }
 
-    void applyRepellor() {
-        for (auto &object : objects) {
-            const sf::Vector2f displacement = center - object.curr_position;
-            const float distance = sqrt(displacement.x * displacement.x + displacement.y * displacement.y);
-            if (distance > 0) {
-                sf::Vector2f force = (displacement / distance) * REPELLOR_STRENGTH;
-                object.accelerate(-force);
+    void addObjectsToGrid() {
+        grid.clear();
+        for (uint32_t idx=0; idx<objects.size(); idx++) { 
+            VerletObject &object = objects[idx];
+            if (object.curr_position.x > 1.0f && object.curr_position.x < simulation_size.x - 1.0f &&
+                object.curr_position.y > 1.0f && object.curr_position.y < simulation_size.y - 1.0f) {
+                grid.addObject(static_cast<int32_t>(object.curr_position.x / cell_size), static_cast<int32_t>(object.curr_position.y / cell_size), idx);
             }
         }
     }
@@ -167,6 +172,41 @@ private:
             for (int j=i+1; j<objects.size(); j++) {
                 solveCollision(i, j);
             }
+        }
+    }
+
+    void solveObjectCellCollisions(uint32_t object_id, const CollisionCell &cell) {
+        for (uint32_t i=0; i<cell.object_count; i++) {
+            if (object_id != cell.objects[i]) {
+                solveCollision(object_id, cell.objects[i]);
+            }
+        }
+    }
+
+    void processCell(const CollisionCell &cell, uint32_t index) {
+        const int32_t x = index / grid.height;
+        const int32_t y = index % grid.height;
+        for (const auto &object_id : cell.objects) {
+            if (x > 0) {
+                solveObjectCellCollisions(object_id, grid.cells[index - grid.height]);
+                if (y > 0) solveObjectCellCollisions(object_id, grid.cells[index - grid.height - 1]);
+                if (y < grid.height - 1) solveObjectCellCollisions(object_id, grid.cells[index - grid.height + 1]);
+            }
+            if (x < grid.width - 1) {
+                solveObjectCellCollisions(object_id, grid.cells[index + grid.height]);
+                if (y > 0) solveObjectCellCollisions(object_id, grid.cells[index + grid.height - 1]);
+                if (y < grid.height - 1) solveObjectCellCollisions(object_id, grid.cells[index + grid.height + 1]);
+            }
+            if (y > 0) solveObjectCellCollisions(object_id, grid.cells[index - 1]);
+            if (y < grid.height - 1) solveObjectCellCollisions(object_id, grid.cells[index + 1]);
+            solveObjectCellCollisions(object_id, grid.cells[index]);
+        }
+    }
+
+
+    void solveCollisionsCellular() {
+        for (uint32_t idx=0; idx<grid.cells.size(); idx++) {
+            processCell(grid.cells[idx], idx);
         }
     }
 
@@ -207,78 +247,9 @@ private:
         });
     }
 
-    void applyBorders(VerletObject &object) {
-        const float margin = MARGIN_WIDTH + object.radius;
-        sf::Vector2f collision_factor = {0.0f, 0.0f};
-        if (object.curr_position.x > simulation_size.x - margin) {
-            collision_factor += {(object.curr_position.x - simulation_size.x + margin), 0.0f};
-        } else if (object.curr_position.x < margin) {
-            collision_factor -= {(margin - object.curr_position.x), 0.0f};
-        }
-        if (object.curr_position.y > simulation_size.y - margin) {
-            collision_factor += {0.0f, (object.curr_position.y - simulation_size.y + margin)};
-        } else if (object.curr_position.y < margin) {
-            collision_factor -= {0.0f, (margin - object.curr_position.y)};
-        }
-        object.curr_position -= 0.5f * collision_factor * RESPONSE_COEF;
-    }
-
-    void applyBorders() {
-        for (auto &object : objects) {
-            const float margin = MARGIN_WIDTH + object.radius;
-            sf::Vector2f collision_factor = {0.0f, 0.0f};
-            if (object.curr_position.x > simulation_size.x - margin) {
-                collision_factor += {(object.curr_position.x - simulation_size.x + margin), 0.0f};
-            } else if (object.curr_position.x < margin) {
-                collision_factor -= {(margin - object.curr_position.x), 0.0f};
-            }
-            if (object.curr_position.y > simulation_size.y - margin) {
-                collision_factor += {0.0f, (object.curr_position.y - simulation_size.y + margin)};
-            } else if (object.curr_position.y < margin) {
-                collision_factor -= {0.0f, (margin - object.curr_position.y)};
-            }
-            object.curr_position -= 0.5f * collision_factor * RESPONSE_COEF;
-        }
-    }
-
-    void solveObjectCellCollisions(uint32_t object_id, const CollisionCell &cell) {
-        for (uint32_t i=0; i<cell.object_count; i++) {
-            if (object_id != cell.objects[i]) {
-                solveCollision(object_id, cell.objects[i]);
-            }
-        }
-    }
-
-    void processCell(const CollisionCell &cell, uint32_t index) {
-        const int32_t x = index / grid.height;
-        const int32_t y = index % grid.height;
-        for (const auto &object_id : cell.objects) {
-            if (x > 0) {
-                solveObjectCellCollisions(object_id, grid.data[index - grid.height]);
-                if (y > 0) solveObjectCellCollisions(object_id, grid.data[index - grid.height - 1]);
-                if (y < grid.height - 1) solveObjectCellCollisions(object_id, grid.data[index - grid.height + 1]);
-            }
-            if (x < grid.width - 1) {
-                solveObjectCellCollisions(object_id, grid.data[index + grid.height]);
-                if (y > 0) solveObjectCellCollisions(object_id, grid.data[index + grid.height - 1]);
-                if (y < grid.height - 1) solveObjectCellCollisions(object_id, grid.data[index + grid.height + 1]);
-            }
-            if (y > 0) solveObjectCellCollisions(object_id, grid.data[index - 1]);
-            if (y < grid.height - 1) solveObjectCellCollisions(object_id, grid.data[index + 1]);
-            solveObjectCellCollisions(object_id, grid.data[index]);
-        }
-    }
-
-
-    void solveCollisionsCellular() {
-        for (uint32_t idx=0; idx<grid.data.size(); idx++) {
-            processCell(grid.data[idx], idx);
-        }
-    }
-
     void solvePartitionThreaded(uint32_t start, uint32_t end) {
         for (uint32_t idx=start; idx<end; idx++) {
-            processCell(grid.data[idx], idx);
+            processCell(grid.cells[idx], idx);
         }
     }
 
@@ -295,9 +266,9 @@ private:
                 solvePartitionThreaded(start, end);
             });
         }
-        if (last_cell < grid.data.size()) {
+        if (last_cell < grid.cells.size()) {
             thread_pool.addTask([this, last_cell]{
-                solvePartitionThreaded(last_cell, grid.data.size());
+                solvePartitionThreaded(last_cell, grid.cells.size());
             });
         }
         for (uint32_t idx=0; idx<thread_count; idx++) {
@@ -308,16 +279,5 @@ private:
             });
         }
         thread_pool.waitForCompletion();
-    }
-
-    void addObjectsToGrid() {
-        grid.clear();
-        for (uint32_t idx=0; idx<objects.size(); idx++) { 
-            VerletObject &object = objects[idx];
-            if (object.curr_position.x > 1.0f && object.curr_position.x < simulation_size.x - 1.0f &&
-                object.curr_position.y > 1.0f && object.curr_position.y < simulation_size.y - 1.0f) {
-                grid.addObject(static_cast<int32_t>(object.curr_position.x / cell_size), static_cast<int32_t>(object.curr_position.y / cell_size), idx);
-            }
-        }
     }
 };

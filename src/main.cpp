@@ -3,10 +3,10 @@
 #include <algorithm>
 #include <SFML/Graphics.hpp>
 
+#include "utils/rng.hpp"
 #include "physics/solver.hpp"
 #include "renderer/renderer.hpp"
 #include "thread_pool/thread_pool.hpp"
-#include "utils/number_generator.hpp"
 
 constexpr int32_t WINDOW_WIDTH = 1920;
 constexpr int32_t WINDOW_HEIGHT = 1080;
