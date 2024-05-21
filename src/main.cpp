@@ -21,8 +21,8 @@ constexpr float SPAWN_DELAY = 0.005f;
 constexpr float SPAWN_SPEED = 10.0f;
 
 constexpr int32_t FRAMERATE_LIMIT = 60;
+constexpr int32_t THREAD_COUNT = 10;
 constexpr int32_t SUBSTEPS = 8;
-const int32_t THREAD_COUNT = 10;
 
 const sf::Vector2f SPAWN_POSITION = {WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2};
 
