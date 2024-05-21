@@ -1,6 +1,6 @@
 #pragma once
 
-#include "solver.hpp"
+#include "../physics/solver.hpp"
 
 constexpr float OUTLINE_THICKNESS = 2.0f;
 

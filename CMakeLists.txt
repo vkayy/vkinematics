@@ -3,7 +3,7 @@ set(PROJECT_NAME multithreadedPhysicsSimulator)
 project(${PROJECT_NAME} VERSION 1.0.0 LANGUAGES CXX)
 
 set(SOURCES
-    "main.cpp"
+    "src/main.cpp"
 )
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake_modules" ${CMAKE_MODULE_PATH})

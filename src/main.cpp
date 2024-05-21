@@ -3,16 +3,16 @@
 #include <algorithm>
 #include <SFML/Graphics.hpp>
 
-#include "solver.hpp"
-#include "renderer.hpp"
-#include "thread_pool.hpp"
+#include "physics/solver.hpp"
+#include "renderer/renderer.hpp"
+#include "thread_pool/thread_pool.hpp"
 #include "utils/number_generator.hpp"
 
 constexpr int32_t WINDOW_WIDTH = 1920;
 constexpr int32_t WINDOW_HEIGHT = 1080;
 constexpr float MIN_RADIUS = 10.0f;
 constexpr float MAX_RADIUS = 15.0f;
-constexpr float MAX_OBJECT_COUNT = 2000;
+constexpr float MAX_OBJECT_COUNT = 3000;
 constexpr float MAX_ANGLE = 1.0f;
 constexpr int32_t FRAMERATE_LIMIT = 60;
 constexpr bool SPEED_COLOURING = true;
@@ -40,16 +40,15 @@ int main()
     constexpr int32_t window_height = WINDOW_HEIGHT;
 
     sf::ContextSettings settings;
-    settings.antialiasingLevel = 10;
+    settings.antialiasingLevel = 1;
     sf::RenderWindow window(sf::VideoMode(window_width, window_height), "Multithreaded Physics Simulator", sf::Style::Default, settings);
-
     
     tp::ThreadPool thread_pool(THREAD_COUNT);
 
     Solver solver(
         sf::Vector2f(WINDOW_WIDTH, WINDOW_HEIGHT),
         SUBSTEPS,
-        std::max(MAX_RADIUS, WINDOW_WIDTH / 30.0f),
+        MAX_RADIUS,
         FRAMERATE_LIMIT,
         SPEED_COLOURING,
         thread_pool
@@ -80,11 +79,5 @@ int main()
         renderer.render(solver);
         window.display();
     }
-
     return 0;
 }
-
-// cd /Users/vinzkakilala/Desktop/dev/multithreadedPhysicsSimulator/build
-// cmake ..
-// cmake --build .
-// ./multithreadedPhysicsSimulator

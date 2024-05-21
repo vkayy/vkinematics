@@ -1,8 +1,8 @@
 #pragma once
 
-#include "grid.hpp"
+#include "../utils/grid.hpp"
 
-constexpr uint8_t CELL_CAPACITY = 8;
+constexpr uint8_t CELL_CAPACITY = 4;
 
 struct CollisionCell {
     uint32_t object_count = 0;

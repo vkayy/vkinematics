@@ -6,7 +6,7 @@
 
 #include "verlet.hpp"
 #include "collision-grid.hpp"
-#include "thread_pool.hpp"
+#include "../thread_pool/thread_pool.hpp"
 
 constexpr int DEFAULT_SUBSTEPS = 8;
 constexpr float MARGIN_WIDTH = 2.0f;
