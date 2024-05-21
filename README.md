@@ -56,9 +56,9 @@ In `src/main.cpp`, there are also numerous parameters that you can modify to you
 - `THREAD_COUNT`: The number of threads used (experiment with this, see what works best for you).
 
 For the `COLLISION_RESOLVER` parameter, there are three options:
-- 0: Multithreaded and optimised with uniform collision grid spatial partitioning.
-- 1: Single-threaded and optimised with uniform collision grid spatial partitioning.
-- 2: Single-threaded and brute force collision resolution.
+- `0`: Multithreaded and optimised with uniform collision grid spatial partitioning.
+- `1`: Single-threaded and optimised with uniform collision grid spatial partitioning.
+- `2`: Single-threaded and brute force collision resolution.
 - Any other invalid option will default to multithreading.
 
 Also, not that the default `SPAWN_POSITION` is the centre of the window, but this can be modified also (ensure this is in terms of `WINDOW_WIDTH` and `WINDOW_HEIGHT`, as your objects may spawn out of bounds).
