@@ -16,7 +16,7 @@ Currently, the means of spatial partitioning is an AABB-based uniform collision 
 
 At the moment, the engine simulates in 2D only. But, with greater processing power access (via university), I have intentions of implementing a 3D engine.
 
-## Instructions
+## How do I use this?
 
 To run this locally, `cd` into the directory of the repository, then call `mkdir build`. Next, `cd` into the `build` directory, and call these commands:
 
@@ -25,3 +25,5 @@ cmake ..
 cmake --build .
 ./multiThreadedPhysicsEngine
 ```
+
+In `src/main.cpp`, there are also numerous constants that you can modify to your liking at the top of the file. Note that the default `SPAWN_POSITION` is the centre of the window, but this can be modified also.
