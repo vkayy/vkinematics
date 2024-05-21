@@ -4,13 +4,14 @@
 
 template <typename T>
 struct RNG {
+    std::random_device rd;
     std::mt19937 gen;
     std::uniform_real_distribution<T> dis;
-    std::random_device rd;
 
     RNG()
-        : gen(rd())
-        , dis(0.0f, 1.0f)
+        : rd{}
+        , gen{rd()}
+        , dis{0.0f, 1.0f}
     {}
 
     float get() {
