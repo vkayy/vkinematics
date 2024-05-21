@@ -32,13 +32,15 @@ For Windows, download from the website:
 
 https://www.sfml-dev.org/download.php
 
-Next, assuming you've downloaded the repository, to run the engine, `cd` into the directory of the repository, then call `mkdir build`. Then, `cd` into the `build` directory, and call these commands:
+Next, assuming you've downloaded the repository, to run the engine, `cd` into the directory of the repository, then call `mkdir build`. At this stage, `cd` into the `build` directory, and call these commands:
 
 ```
 cmake ..
 cmake --build .
 ./multiThreadedPhysicsEngine
 ```
+
+Now, whenever you want to re-run a simulation, it is as simple as `Up Arrow` then `Enter` (i.e., running that block of commands again).
 
 In `src/main.cpp`, there are also numerous constants that you can modify to your liking at the top of the file:
 - `WINDOW_WIDTH`: The width of the window.
