@@ -32,7 +32,7 @@ For Windows, download from the website:
 
 https://www.sfml-dev.org/download.php
 
-Next, assuming you've downloaded the repository now, to run the engine, `cd` into the directory of the repository, then call `mkdir build`. Then, `cd` into the `build` directory, and call these commands:
+Next, assuming you've downloaded the repository, to run the engine, `cd` into the directory of the repository, then call `mkdir build`. Then, `cd` into the `build` directory, and call these commands:
 
 ```
 cmake ..
