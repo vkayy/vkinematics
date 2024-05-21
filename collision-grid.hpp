@@ -12,11 +12,11 @@ struct CollisionCell {
 
     void addObject(uint32_t object_id) {
         objects[object_count] = object_id;
-        object_count += object_count < CELL_CAPACITY - 1;
+        object_count += object_count < (CELL_CAPACITY - 1);
     }
 
     void clear() {
-        object_count = 0;
+        object_count = 0u;
     }
 
     void remove(uint32_t object_id) {
@@ -39,13 +39,13 @@ struct CollisionGrid : Grid<CollisionCell> {
     {}
 
     void addObject(uint32_t x, uint32_t y, uint32_t object_id) {
-        const uint32_t idx = width * y + x;
+        const uint32_t idx = x * height + y;
         data[idx].addObject(object_id);
     }
 
     void clear() {
         for (auto &cell : data) {
-            cell.object_count = 0;
+            cell.clear();
         }
     }
 };

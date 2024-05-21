@@ -11,18 +11,10 @@ public:
 
     }
     void render(const Solver &solver) const {
-        const sf::Vector3f constraint = solver.getConstraint();
-        sf::CircleShape constraint_area{constraint.z};
-        constraint_area.setOrigin(constraint.z, constraint.z);
-        constraint_area.setFillColor(sf::Color::White);
-        constraint_area.setPosition(constraint.x, constraint.y);
-        constraint_area.setPointCount(8192);
-        target.draw(constraint_area);
-
         sf::CircleShape circle{1.0f};
         circle.setPointCount(32);
         circle.setOrigin(1.0f, 1.0f);
-        const auto& objects = solver.getObjects();
+        const auto& objects = solver.objects;
         for (const auto& obj : objects) {
             circle.setPosition(obj.curr_position);
             circle.setScale(obj.radius, obj.radius);

@@ -25,7 +25,7 @@ struct Grid {
     }
 
     bool checkCoords(int32_t x, int32_t y) {
-        return x > 0 && x < width - 1 && y > 0 && y < height - 1;
+        return x > 0 && x < (width - 1) && y > 0 && y < (height - 1);
     }
 
     const T &get(int32_t x, int32_t y) const {
