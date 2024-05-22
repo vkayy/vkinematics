@@ -36,7 +36,15 @@ public:
 
     tp::ThreadPool &thread_pool;
  
-    Solver(sf::Vector2f size, int32_t substeps, float cell_size, int32_t framerate, bool speed_colouring, tp::ThreadPool &thread_pool, bool gravity_on)
+    Solver(
+        sf::Vector2f size,
+        int32_t substeps,
+        float cell_size,
+        int32_t framerate,
+        bool speed_colouring,
+        tp::ThreadPool &thread_pool,
+        bool gravity_on
+    )
         : grid{static_cast<int32_t>(size.x / cell_size), static_cast<int32_t>(size.y / cell_size)}
         , simulation_size{static_cast<float>(size.x), static_cast<float>(size.y)}
         , substeps{DEFAULT_SUBSTEPS}
