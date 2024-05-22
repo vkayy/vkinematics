@@ -96,7 +96,7 @@ resolver_spatial_partitioning_objects/process_time_BigO      4058967.33 N
 resolver_multithreaded_objects/process_time_BigO             1581379.74 N
 ```
 
-As the brute-force algorithm is of quadratic time complexity with respect to the number of objects, mean operation time unsurprisingly scales quadratically as the number of objects increases. On the other hand, by using spatial partitioning with some pruning, we achieve a linear time complexity, which is then improved further by a constant through multithreading.
+As the brute-force algorithm is of quadratic time complexity with respect to the number of objects, mean operation time unsurprisingly scales quadratically as the number of objects increases. On the other hand, by using spatial partitioning with some pruning, we achieve time complexity that is closer to linear, which is then improved further by a constant through multithreading.
 
 Therefore, the brute-force algorithm is significantly less efficient than both the spatial-partitioning algorithm, with or without multithreading. On the other hand, the multithreaded algorithm appears to be just over 60% faster than the spatial-partitioning algorithm.
 
