@@ -14,21 +14,21 @@ It is important to note that the resolution will only be deterministic if the mi
 
 ## How do I use this?
 
-First of all, for sake of rendering, SFML has to be installed as it is a dependency.
+First of all, for the sake of visualisation, SFML has to be locally installed.
 
-For Linux, use your preferred package manager:
+On Linux, use your preferred package manager:
 ```
 sudo apt-get install libsfml-dev
 ```
 
-For MacOS, use Homebrew:
+On MacOS, use Homebrew:
 ```
 brew install sfml
 ```
 
-For Windows, download SFML from the [SFML website](https://www.sfml-dev.org/download.php).
+On Windows, download SFML from the [SFML website](https://www.sfml-dev.org/download.php).
 
-Next, assuming you've downloaded the repository, to run the engine, `cd` into the directory of the repository, then call `mkdir build`. At this stage, `cd` into the `build` directory, and call these commands:
+To run the engine, assuming you've downloaded the repository, `cd` into the directory of the repository, then call `mkdir build`. At this stage, `cd` into the `build` directory, and call these commands:
 
 ```
 cmake ..
