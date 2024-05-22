@@ -74,7 +74,7 @@ cmake -E make_directory "build"
 cmake -E chdir "build" cmake -DBENCHMARK_DOWNLOAD_DEPENDENCIES=on -DCMAKE_BUILD_TYPE=Release ../
 cmake --build "build" --config Release
 ```
-The above sets up the Google Benchmark dependency locally and sets up the build system.
+The above sets up the [Google Benchmark](https://github.com/google/benchmark/tree/main) dependency locally and sets up the build system.
 
 ```
 g++ test/benchmark_simulation.cc -std=c++17 -isystem benchmark/include -Lbenchmark/build/src -lbenchmark -lpthread -lsfml-graphics -lsfml-window -lsfml-system -o test/benchmark_simulation
