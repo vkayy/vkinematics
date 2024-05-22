@@ -63,18 +63,29 @@ In `src/main.cpp`, there are also numerous parameters that you can modify to you
 
 ## How is performance measured?
 
-By using Google Benchmark, I wrote a series of simple benchmarks to analyse the performance of various thread counts, resolvers, and other parameters. If you'd like to run the benchmarking locally, `cd` into `src`, then run the following commands:
+By using Google Benchmark, I wrote a series of simple benchmarks to analyse the performance of various thread counts, resolvers, and other parameters.
+
+If you'd like to run the benchmarking locally, `cd` into `src`, then run the following commands:
+
+```
+git clone https://github.com/google/benchmark.git
+cd benchmark
+cmake -E make_directory "build"
+cmake -E chdir "build" cmake -DBENCHMARK_DOWNLOAD_DEPENDENCIES=on -DCMAKE_BUILD_TYPE=Release ../
+cmake --build "build" --config Release
+```
+The above sets up the Google Benchmark dependency locally and sets up the build system.
 
 ```
 g++ test/benchmark_simulation.cc -std=c++17 -isystem benchmark/include -Lbenchmark/build/src -lbenchmark -lpthread -lsfml-graphics -lsfml-window -lsfml-system -o test/benchmark_simulation
 ```
-The above compiles the benchmark file (in case you would like to modify or add benchmarks) into an executable file that can be ran for the actual benchmark analysis.
+The above then compiles the benchmark file (in case you would like to modify or add benchmarks) into an executable file that can be ran for the actual benchmark analysis.
 
 
 ```
 test/benchmark_simulation --benchmark_out=test/benchmark_simulation.csv --benchmark_out_format=csv --benchmark_repetitions=5
 ```
-Then, the above runs the benchmark executable, which then causes it to output the results into your console and a `.csv` file. To read more about the various options, check out the [Google Benchmark user guide](https://github.com/google/benchmark/blob/main/docs/user_guide.md).
+Finally, the above runs the benchmark executable, which then causes it to output the results into your console and a `.csv` file. To read more about the various options, check out the [Google Benchmark user guide](https://github.com/google/benchmark/blob/main/docs/user_guide.md).
 
 On one instance of the benchmarking locally, I obtained these Big-Oh complexities (where N is the number of objects):
 
