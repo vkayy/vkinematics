@@ -16,7 +16,7 @@ constexpr float SPAWN_DELAY = 0.005f;
 constexpr float SPAWN_SPEED = 10.0f;
 
 constexpr int32_t FRAMERATE_LIMIT = 60;
-constexpr int32_t THREAD_COUNT = 6;
+constexpr int32_t THREAD_COUNT = 5;
 constexpr int32_t SUBSTEPS = 8;
 
 constexpr int8_t COLLISION_RESOLVER = 0;
