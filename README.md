@@ -68,12 +68,13 @@ By using Google Benchmark, I wrote a series of simple benchmarks to analyse the 
 ```
 g++ test/benchmark_simulation.cc -std=c++17 -isystem benchmark/include -Lbenchmark/build/src -lbenchmark -lpthread -lsfml-graphics -lsfml-window -lsfml-system -o test/benchmark_simulation
 ```
-This compiles the benchmark file (in case you would like to modify or add benchmarks) into an executable file that can be ran for the actual benchmark analysis.
+The above compiles the benchmark file (in case you would like to modify or add benchmarks) into an executable file that can be ran for the actual benchmark analysis.
+
 
 ```
 test/benchmark_simulation --benchmark_out=test/benchmark_simulation.csv --benchmark_out_format=csv --benchmark_repetitions=5
 ```
-Then, this runs the benchmark executable, which then causes it to output the results into your console and a `.csv` file. Notice that the `--benchmark_repetitions` option is used to improve repeatability of results -- to read about more options, check out the Google Benchmark user guide: https://github.com/google/benchmark/blob/main/docs/user_guide.md.
+Then, the above runs the benchmark executable, which then causes it to output the results into your console and a `.csv` file. To read about more the various options, check out the Google Benchmark user guide: https://github.com/google/benchmark/blob/main/docs/user_guide.md.
 
 On one instance of the benchmarking locally, I obtained these Big-Oh results across a mean of five repetitions (where N is the number of updates):
 
@@ -84,7 +85,9 @@ spatial_partitioning/process_time_BigO     10316746.77 N
 multithreaded/process_time_BigO             6653472.30 N
 ```
 
-As the brute-force method is of quadratic time complexity with respect to the number of objects, it unsurprisingly scales worse as number of updates increase. On the other hand, by using spatial partitioning with some pruning, we achieve a time complexity that is closer to linear, given that the grid is not too dense. We use these results to approximate that the multithreaded resolution algorithm is about 80% faster than the brute-force resolution algorithm (the raw values themselves are arbitrary, only the ratios matter).
+Using these results, we can thus approximate that the multithreaded resolution algorithm is about 80% faster than the brute-force resolution algorithm (the raw values themselves are arbitrary, only the ratios matter).
+
+As the brute-force algorithm is of quadratic time complexity with respect to the number of objects, execution time unsurprisingly scales worse as the number of updates increases. On the other hand, by using spatial partitioning with some pruning, we achieve a time complexity that is closer to linear, given that the grid is not too dense.
 
 ## What are the next steps?
 
