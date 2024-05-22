@@ -36,7 +36,7 @@ public:
 
     tp::ThreadPool &thread_pool;
  
-    Solver(sf::Vector2f size, int32_t substeps, float cell_size, int32_t framerate, bool speed_colouring, tp::ThreadPool &thread_pool)
+    Solver(sf::Vector2f size, int32_t substeps, float cell_size, int32_t framerate, bool speed_colouring, tp::ThreadPool &thread_pool, bool gravity_on)
         : grid{static_cast<int32_t>(size.x / cell_size), static_cast<int32_t>(size.y / cell_size)}
         , simulation_size{static_cast<float>(size.x), static_cast<float>(size.y)}
         , substeps{DEFAULT_SUBSTEPS}
@@ -45,6 +45,7 @@ public:
         , speed_colouring{speed_colouring}
         , center{0.5f * simulation_size}
         , thread_pool{thread_pool}
+        , gravity{sf::Vector2f(0.0f, gravity_on ? -GRAVITY_CONST : 0.0f)}
     {
         grid.clear();
     }
@@ -187,26 +188,30 @@ private:
         const int32_t x = index / grid.height;
         const int32_t y = index % grid.height;
         for (const auto &object_id : cell.objects) {
-            if (x > 0) {
+            solveObjectCellCollisions(object_id, grid.cells[index]);
+            if (y > 1) solveObjectCellCollisions(object_id, grid.cells[index - 1]);
+            if (y < grid.height - 1) solveObjectCellCollisions(object_id, grid.cells[index + 1]);
+            if (x > 1) {
                 solveObjectCellCollisions(object_id, grid.cells[index - grid.height]);
-                if (y > 0) solveObjectCellCollisions(object_id, grid.cells[index - grid.height - 1]);
+                if (y > 1) solveObjectCellCollisions(object_id, grid.cells[index - grid.height - 1]);
                 if (y < grid.height - 1) solveObjectCellCollisions(object_id, grid.cells[index - grid.height + 1]);
             }
             if (x < grid.width - 1) {
                 solveObjectCellCollisions(object_id, grid.cells[index + grid.height]);
-                if (y > 0) solveObjectCellCollisions(object_id, grid.cells[index + grid.height - 1]);
+                if (y > 1) solveObjectCellCollisions(object_id, grid.cells[index + grid.height - 1]);
                 if (y < grid.height - 1) solveObjectCellCollisions(object_id, grid.cells[index + grid.height + 1]);
             }
-            if (y > 0) solveObjectCellCollisions(object_id, grid.cells[index - 1]);
-            if (y < grid.height - 1) solveObjectCellCollisions(object_id, grid.cells[index + 1]);
-            solveObjectCellCollisions(object_id, grid.cells[index]);
         }
     }
 
 
     void solveCollisionsCellular() {
         for (uint32_t idx=0; idx<grid.cells.size(); idx++) {
-            processCell(grid.cells[idx], idx);
+            if (grid.cells[idx].object_count > 0 &&
+                idx / grid.height > 0 && idx / grid.height < grid.width - 1 &&
+                idx % grid.height > 0 && idx % grid.height < grid.height - 1) {
+                processCell(grid.cells[idx], idx);
+            }
         }
     }
 
@@ -249,7 +254,11 @@ private:
 
     void solvePartitionThreaded(uint32_t start, uint32_t end) {
         for (uint32_t idx=start; idx<end; idx++) {
-            processCell(grid.cells[idx], idx);
+            if (grid.cells[idx].object_count > 0 &&
+                idx / grid.height > 0 && idx / grid.height < grid.width - 1 &&
+                idx % grid.height > 0 && idx % grid.height < grid.height - 1) {
+                processCell(grid.cells[idx], idx);
+            }
         }
     }
 
