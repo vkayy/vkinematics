@@ -96,7 +96,7 @@ BENCHMARK(BM_updateSimulation)
 ->MeasureProcessCPUTime();
 
 BENCHMARK(BM_updateSimulation)
-->Name("reslolver_spatial_partitioning_updates")
+->Name("resolver_spatial_partitioning_updates")
 ->ArgsProduct({
     {5, 10, 25, 50, 100, 250, 500, 1000},
     {1},
