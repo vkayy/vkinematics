@@ -6,7 +6,7 @@
 static void BM_updateSimulation(benchmark::State &state) {
     int32_t window_width = 1920;
     int32_t window_height = 1080;
-    float max_object_count = 500;
+    float max_object_count = state.range(5);
     float radius = 10.0f;
     float max_angle = 1.0f;
     bool speed_colouring = state.range(4);
@@ -47,7 +47,7 @@ static void BM_updateSimulation(benchmark::State &state) {
             }
         }
     }
-    state.SetComplexityN(state.range(0));
+    state.SetComplexityN(state.range(state.range(6)));
 }
 
 /*
@@ -62,6 +62,8 @@ BENCHMARK(BM_updateSimulation)
     [number of threads to use],
     [gravity on/off],
     [colouring method],
+    [max object count],
+    [time complexity variable N],
 });
 
 */
@@ -74,41 +76,91 @@ BENCHMARK(BM_updateSimulation)
     benchmark::CreateDenseRange(2, 16, 1),
     {0},
     {0},
+    {500},
+    {0},
 })
 ->MeasureProcessCPUTime();
 
 BENCHMARK(BM_updateSimulation)
-->Name("resolver_brute_force")
+->Name("resolver_brute_force_updates")
 ->ArgsProduct({
     {5, 10, 25, 50, 100, 250, 500, 1000},
     {2},
     {1},
-    {0, 1},
+    {0},
+    {0},
+    {500},
     {0},
 })
 ->Complexity()
 ->MeasureProcessCPUTime();
 
 BENCHMARK(BM_updateSimulation)
-->Name("reslolver_spatial_partitioning")
+->Name("reslolver_spatial_partitioning_updates")
 ->ArgsProduct({
     {5, 10, 25, 50, 100, 250, 500, 1000},
     {1},
     {1},
-    {0, 1},
+    {0},
+    {0},
+    {500},
     {0},
 })
 ->Complexity()
 ->MeasureProcessCPUTime();
 
 BENCHMARK(BM_updateSimulation)
-->Name("resolver_multithreaded")
+->Name("resolver_multithreaded_updates")
 ->ArgsProduct({
     {5, 10, 25, 50, 100, 250, 500, 1000},
     {0},
-    {5, 6},
-    {0, 1},
+    {6},
     {0},
+    {0},
+    {500},
+    {0},
+})
+->Complexity()
+->MeasureProcessCPUTime();
+
+BENCHMARK(BM_updateSimulation)
+->Name("resolver_brute_force_objects")
+->ArgsProduct({
+    {500},
+    {2},
+    {1},
+    {0},
+    {0},
+    {10, 50, 100, 250, 500, 1000},
+    {5},
+})
+->Complexity()
+->MeasureProcessCPUTime();
+
+BENCHMARK(BM_updateSimulation)
+->Name("resolver_spatial_partitioning_objects")
+->ArgsProduct({
+    {500},
+    {1},
+    {1},
+    {0},
+    {0},
+    {10, 50, 100, 250, 500, 1000, 2500, 5000},
+    {5},
+})
+->Complexity()
+->MeasureProcessCPUTime();
+
+BENCHMARK(BM_updateSimulation)
+->Name("resolver_multithreaded_objects")
+->ArgsProduct({
+    {500},
+    {0},
+    {6},
+    {0},
+    {0},
+    {10, 50, 100, 250, 500, 1000, 2500, 5000},
+    {5},
 })
 ->Complexity()
 ->MeasureProcessCPUTime();
@@ -119,8 +171,8 @@ BENCHMARK(BM_updateSimulation)
     {500},
     {0},
     {5},
-    {0},
     {0, 1},
+    {0},
 });
 
 BENCHMARK_MAIN();
