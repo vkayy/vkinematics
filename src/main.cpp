@@ -6,7 +6,7 @@ constexpr bool RENDER_DISPLAY = true;
 constexpr int32_t WINDOW_WIDTH = 1920;
 constexpr int32_t WINDOW_HEIGHT = 1080;
 
-constexpr float MAX_OBJECT_COUNT = 3000;
+constexpr float MAX_OBJECT_COUNT = 1000;
 constexpr float MIN_RADIUS = 10.0f;
 constexpr float MAX_RADIUS = 15.0f;
 constexpr float MAX_ANGLE = 1.0f;
@@ -16,7 +16,7 @@ constexpr float SPAWN_DELAY = 0.005f;
 constexpr float SPAWN_SPEED = 10.0f;
 
 constexpr int32_t FRAMERATE_LIMIT = 60;
-constexpr int32_t THREAD_COUNT = 10;
+constexpr int32_t THREAD_COUNT = 6;
 constexpr int32_t SUBSTEPS = 8;
 
 constexpr int8_t COLLISION_RESOLVER = 0;
