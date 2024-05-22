@@ -49,8 +49,7 @@ struct UniformCollisionGrid {
     }
 
     void clear() {
-        for (auto &cell : cells) {
-            cell.clear();
-        }
+        cells.clear();
+        cells.resize(width * height);
     }
 };

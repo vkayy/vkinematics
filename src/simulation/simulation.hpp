@@ -33,6 +33,7 @@ void runSimulation(
     int32_t thread_count,
     int32_t substeps,
     int8_t collision_resolver,
+    bool gravity_on,
     sf::Vector2f spawn_position
 ) {
     
@@ -48,7 +49,8 @@ void runSimulation(
         max_radius,
         framerate_limit,
         speed_colouring,
-        thread_pool
+        thread_pool,
+        gravity_on
     );
 
     Renderer renderer{window};
