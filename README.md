@@ -74,7 +74,7 @@ The above compiles the benchmark file (in case you would like to modify or add b
 ```
 test/benchmark_simulation --benchmark_out=test/benchmark_simulation.csv --benchmark_out_format=csv --benchmark_repetitions=5
 ```
-Then, the above runs the benchmark executable, which then causes it to output the results into your console and a `.csv` file. To read about more the various options, check out the Google Benchmark user guide: https://github.com/google/benchmark/blob/main/docs/user_guide.md.
+Then, the above runs the benchmark executable, which then causes it to output the results into your console and a `.csv` file. To read about more the various options, check out the Google Benchmark [user guide](https://github.com/google/benchmark/blob/main/docs/user_guide.md).
 
 On one instance of the benchmarking locally, I obtained these Big-Oh results across a mean of five repetitions (where N is the number of updates):
 
