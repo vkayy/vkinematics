@@ -26,7 +26,7 @@ For MacOS, use Homebrew:
 brew install sfml
 ```
 
-For Windows, download SFML from their [website](https://www.sfml-dev.org/download.php).
+For Windows, download SFML from the [SFML website](https://www.sfml-dev.org/download.php).
 
 Next, assuming you've downloaded the repository, to run the engine, `cd` into the directory of the repository, then call `mkdir build`. At this stage, `cd` into the `build` directory, and call these commands:
 
