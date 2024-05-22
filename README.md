@@ -74,19 +74,17 @@ test/benchmark_simulation --benchmark_out=test/benchmark_simulation.csv --benchm
 ```
 Then, the above runs the benchmark executable, which then causes it to output the results into your console and a `.csv` file. To read more about the various options, check out the [Google Benchmark user guide](https://github.com/google/benchmark/blob/main/docs/user_guide.md).
 
-On one instance of the benchmarking locally, I obtained these Big-Oh results across a mean of five repetitions (where N is the number of updates):
+On one instance of the benchmarking locally, I obtained these Big-Oh complexities (where N is the number of objects):
 
 ```
-        BENCHMARK                              TIME             
-brute_force/process_time_BigO              30264097.34 N
-spatial_partitioning/process_time_BigO     10316746.77 N
-multithreaded/process_time_BigO             6653472.30 N
+                   BENCHMARK                                       TIME             
+resolver_brute_force_objects/process_time_BigO                 59239.43 N^2
+resolver_spatial_partitioning_objects/process_time_BigO      4058967.33 N
+resolver_multithreaded_objects/process_time_BigO             1581379.74 N
 ```
 
-Using these results, we can thus approximate that the multithreaded resolution algorithm is about 80% faster than the brute-force resolution algorithm (the raw values themselves are arbitrary, only the ratios matter).
-
-As the brute-force algorithm is of quadratic time complexity with respect to the number of objects, execution time unsurprisingly scales worse as the number of updates increases. On the other hand, by using spatial partitioning with some pruning, we achieve a time complexity that is closer to linear, given that the grid is not too dense.
+As the brute-force algorithm is of quadratic time complexity with respect to the number of objects, mean operation time unsurprisingly scales quadratically as the number of objects increases. On the other hand, by using spatial partitioning with some pruning, we achieve a linear time complexity, which is then improved further by a constant through multithreading.
 
 ## What are the next steps?
 
-At the moment, the engine simulates in 2D only. But, with greater processing power access (via university), I have intentions of implementing a 3D engine.
+At the moment, the engine simulates 2D physics only, but, with access to greater processing power, I may extend the engine to simulate 3D physics.
