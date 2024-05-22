@@ -20,8 +20,8 @@ sf::Color getRainbowColour(float t) {
 
 void runSimulation(
     bool render_display,
-    int32_t window_height,
     int32_t window_width,
+    int32_t window_height,
     float max_object_count,
     float min_radius,
     float max_radius,
