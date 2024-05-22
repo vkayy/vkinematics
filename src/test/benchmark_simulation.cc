@@ -57,13 +57,13 @@ Benchmark format is as follows:
 BENCHMARK(BM_updateSimulation)
 ->Name([test name])
 ->ArgsProduct({
-    [number of updates to test],
-    [collision resolver selection],
-    [number of threads to use],
-    [gravity on/off],
-    [colouring method],
-    [max object count],
-    [time complexity variable N],
+    0: [number of updates to test],
+    1: [collision resolver selection],
+    2: [number of threads to use],
+    3: [gravity on/off],
+    4: [colouring method],
+    5: [max object count],
+    6: [time complexity state variable index],
 });
 
 */
@@ -76,7 +76,7 @@ BENCHMARK(BM_updateSimulation)
     benchmark::CreateDenseRange(2, 16, 1),
     {0},
     {0},
-    {500},
+    {1000},
     {0},
 })
 ->MeasureProcessCPUTime();
@@ -89,7 +89,7 @@ BENCHMARK(BM_updateSimulation)
     {1},
     {0},
     {0},
-    {500},
+    {1000},
     {0},
 })
 ->Complexity()
@@ -103,7 +103,7 @@ BENCHMARK(BM_updateSimulation)
     {1},
     {0},
     {0},
-    {500},
+    {1000},
     {0},
 })
 ->Complexity()
@@ -117,7 +117,7 @@ BENCHMARK(BM_updateSimulation)
     {6},
     {0},
     {0},
-    {500},
+    {1000},
     {0},
 })
 ->Complexity()
