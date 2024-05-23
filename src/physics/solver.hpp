@@ -6,7 +6,6 @@
 
 #include "verlet.hpp"
 #include "uniform-collision-grid.hpp"
-#include "../maths/dot.hpp"
 #include "../thread_pool/thread_pool.hpp"
 
 constexpr int DEFAULT_SUBSTEPS = 8;
