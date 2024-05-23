@@ -35,7 +35,7 @@ To run the engine, assuming you've downloaded the repository, `cd` into the dire
 ```
 cmake ..
 cmake --build .
-./multiThreadedPhysicsEngine
+./multiThreadedPhysicsEngine -funsafe-math-optimizations -O3 -flto -ffast-math -march=native -mtune=native -funroll-loops
 ```
 
 Now, whenever you want to re-run a simulation, it is as simple as `Up Arrow` then `Enter` in the terminal (i.e., running that block of commands again).
@@ -95,7 +95,7 @@ cmake --build "build" --config Release
 The above sets up the [Google Benchmark](https://github.com/google/benchmark/tree/main) dependency locally and sets up the build system.
 
 ```
-g++ test/benchmark_simulation.cc -std=c++17 -isystem benchmark/include -Lbenchmark/build/src -lbenchmark -lpthread -lsfml-graphics -lsfml-window -lsfml-system -o test/benchmark_simulation
+g++ test/benchmark_simulation.cc -std=c++17 -isystem benchmark/include -Lbenchmark/build/src -lbenchmark -lpthread -lsfml-graphics -lsfml-window -lsfml-system -o test/benchmark_simulation -funsafe-math-optimizations -O3 -flto -ffast-math -march=native -mtune=native -funroll-loops
 ```
 The above then compiles the benchmark file (in case you would like to modify or add benchmarks) into an executable file that can be ran for the actual benchmark analysis.
 
@@ -119,6 +119,7 @@ resolver_multithreaded_objects/100/0/6/0/0/625/5/process_time      242019838 ns
 resolver_brute_force_objects/100/2/1/0/0/1406/5/process_time      2.3422e+10 ns  
 resolver_multithreaded_objects/100/0/6/0/0/1406/5/process_time     489554195 ns   
 ```
+These benchmarks have been run with no compiler optimisations in contrast to the commands above.
 
 The first benchmark runs 625 objects of diameter 20 on a 500 x 500 window: (500 columns / 20 diameter)^2 = 625 cells. The multithreaded algorithm's runtime is approximately 95% faster.
 
