@@ -38,7 +38,17 @@ cmake --build .
 
 Now, whenever you want to re-run a simulation, it is as simple as `Up Arrow` then `Enter` (i.e., running that block of commands again).
 
-You can use the keys `A` and `R` to respectively activate an attractor/repeller in the centre of the simulation space.
+### Simulation controls
+
+`A` (Attractor): Holding `A` activates an attractor in the centre of the window.
+`R` (Repeller): Holding `R` activates a repeller in the centre of the window.
+`S` (Speed-up): Holding `S` increasingly speeds up each object.
+`W` (Slow-down): Holding `W` increasingly slows down each object.
+`F` (Slo-mo): Holding `F` slows the simulation down to a near stop.
+
+An interesting thing to note is that these controls can be applied simultaneously. Feel free to experiment with that!
+
+### Simulation parameters
 
 In `src/main.cpp`, there are also numerous parameters that you can modify to your liking at the top of the file:
 - `RENDER_DISPLAY`: If true, the simulation is displayed. Otherwise, it is not.
@@ -87,19 +97,12 @@ test/benchmark_simulation --benchmark_out=test/benchmark_simulation.csv --benchm
 ```
 Finally, the above runs the benchmark executable, which then causes it to output the results into your console and a `.csv` file. To read more about the various options, check out the [Google Benchmark user guide](https://github.com/google/benchmark/blob/main/docs/user_guide.md).
 
-On one instance of the benchmarking locally, I obtained these Big-Oh complexities (where N is the number of objects):
+Upon benchmarking, a clear pattern appears. As the brute-force algorithm is of quadratic time complexity with respect to the number of objects, mean operation time unsurprisingly scales quadratically as the number of objects increases. On the other hand, by using spatial partitioning with some pruning, we achieve time complexity that is closer to linear, which is then improved further by a constant through multithreading.
 
-```
-                   BENCHMARK                                       TIME             
-resolver_brute_force_objects/process_time_BigO                 59239.43 N^2
-resolver_spatial_partitioning_objects/process_time_BigO      4058967.33 N
-resolver_multithreaded_objects/process_time_BigO             1581379.74 N
-```
+It is important to stress that the time complexity of the spatial partitioning is **closer** to linear. As the number of objects increases with respect to the size of the window, the average number of objects per cell increases, and this means that objects are more clustered. However, as we increase from 1,000 to 40,000 objects of radius 10 in a 2000 x 2000 window (0.1 to 4 objects per cell), we still retain a loglinear worst case.
 
-As the brute-force algorithm is of quadratic time complexity with respect to the number of objects, mean operation time unsurprisingly scales quadratically as the number of objects increases. On the other hand, by using spatial partitioning with some pruning, we achieve time complexity that is closer to linear, which is then improved further by a constant through multithreading.
-
-Therefore, the brute-force algorithm is significantly less efficient than both the spatial-partitioning algorithm, with or without multithreading. On the other hand, the multithreaded algorithm appears to be just over 60% faster than the spatial-partitioning algorithm.
+As each cell has a side length of the maximum diameter, at 4 objects per cell, we have 4 objects packed into the space available for one -- a scenario unlikely to be simulated -- yet, despite the unrealistic levels of clustering, we sustain a non-quadratic time complexity, illustrating the efficiency of the multithreaded algorithm from average to worst-case scenarios.
 
 ## What are the next steps?
 
-At the moment, the engine simulates 2D physics only, but, with access to greater processing power, I may extend the engine to simulate 3D physics.
+At the moment, we can only simulate rigid-body physics. However, I have intentions of simulating soft-body physics later on.
