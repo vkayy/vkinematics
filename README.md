@@ -71,6 +71,8 @@ In `src/main.cpp`, there are also numerous parameters that you can modify to you
 - `GRAVITY_ON`: If true, objects are affected by gravity. Otherwise, they are not.
 - `SPAWN_POSITION`: The spawn position of each object. Ensure this is in terms of `WINDOW_WIDTH` and `WINDOW_HEIGHT` to prevent out-of-bounds spawning.
 
+Note that lower spawn delay and higher spawn speed can cause extremely rapid movement, which can lead to a crash if values are too extreme.
+
 ## How is performance measured?
 
 By using Google Benchmark, I wrote a series of simple benchmarks to analyse the performance of various thread counts, resolvers, and other parameters.
@@ -99,7 +101,7 @@ Finally, the above runs the benchmark executable, which then causes it to output
 
 Upon benchmarking, a clear pattern appears. As the brute-force algorithm is of quadratic time complexity with respect to the number of objects, mean operation time unsurprisingly scales quadratically as the number of objects increases. On the other hand, by using spatial partitioning with some pruning, we achieve time complexity that is closer to linear, which is then improved further by a constant through multithreading.
 
-It is important to stress that the time complexity of the spatial partitioning is **closer** to linear. As the number of objects increases with respect to the size of the window, the average number of objects per cell increases, and this means that objects are more clustered. However, as we increase from 1,000 to 40,000 objects of radius 10 in a 2000 x 2000 window (0.1 to 4 objects per cell), we still retain a loglinear worst case.
+It is important to stress that the time complexity of the spatial partitioning is closer to, but not exactly linear. As the number of objects increases with respect to the size of the window, the average number of objects per cell increases, and this means that objects are more clustered. However, as we increase from 1,000 to 40,000 objects of radius 10 in a 2000 x 2000 window (0.1 to 4 objects per cell), we still retain a loglinear worst case.
 
 As each cell has a side length of the maximum diameter, at 4 objects per cell, we have 4 objects packed into the space available for one -- a scenario unlikely to be simulated -- yet, despite the unrealistic levels of clustering, we sustain a non-quadratic time complexity, illustrating the efficiency of the multithreaded algorithm from average to worst-case scenarios.
 
