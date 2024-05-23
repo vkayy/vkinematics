@@ -77,7 +77,7 @@ In `src/main.cpp`, there are numerous parameters that you can modify to your lik
 - `GRAVITY_ON`: If true, objects are affected by gravity. Otherwise, they are not.
 - `SPAWN_POSITION`: The spawn position of each object. Ensure this is in terms of `WINDOW_WIDTH` and `WINDOW_HEIGHT` to prevent out-of-bounds spawning.
 
-Note that lower spawn delay and higher spawn speed can cause extremely rapid movement, which can lead to a crash if values are too extreme.
+Note that extremely low and high spawn delay and speed respectively can cause extremely rapid movement, and this can lead to a crash if too extreme.
 
 ## How is performance measured?
 
