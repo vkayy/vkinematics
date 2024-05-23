@@ -4,8 +4,8 @@
 #include "../simulation/simulation.hpp"
 
 static void BM_updateSimulation(benchmark::State &state) {
-    int32_t window_width = 1920;
-    int32_t window_height = 1080;
+    int32_t window_width = 2000;
+    int32_t window_height = 2000;
     float max_object_count = state.range(5);
     float radius = 10.0f;
     float max_angle = 1.0f;
@@ -145,7 +145,7 @@ BENCHMARK(BM_updateSimulation)
     {1},
     {0},
     {0},
-    {10, 50, 100, 250, 500, 1000, 2500, 5000},
+    benchmark::CreateDenseRange(1000, 30000, 1000),
     {5},
 })
 ->Complexity()
@@ -154,12 +154,12 @@ BENCHMARK(BM_updateSimulation)
 BENCHMARK(BM_updateSimulation)
 ->Name("resolver_multithreaded_objects")
 ->ArgsProduct({
-    {500},
+    {100},
     {0},
     {6},
     {0},
     {0},
-    {10, 50, 100, 250, 500, 1000, 2500, 5000},
+    benchmark::CreateDenseRange(1000, 10000, 250),
     {5},
 })
 ->Complexity()
