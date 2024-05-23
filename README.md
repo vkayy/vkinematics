@@ -81,7 +81,7 @@ Note that lower spawn delay and higher spawn speed can cause extremely rapid mov
 
 ## How is performance measured?
 
-By using Google Benchmark, I wrote a series of simple benchmarks to analyse the performance of various thread counts, resolvers, and other parameters.
+By using Google Benchmark, I wrote a series of (swept-parameter) benchmarks to analyse the performance of various thread counts, resolvers, and other parameters.
 
 If you'd like to run the benchmarking locally, `cd` into `src`, then run the following commands:
 
