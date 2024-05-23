@@ -1,6 +1,6 @@
 # Multithreaded Physics Engine
 
-A 2D physics engine which deterministically resolves and visualises the collisions of particles using a custom-written Verlet integration library.
+2D physics engine deterministically resolving and visualising the collisions of particles using a custom-written Verlet integration library.
 
 ## How does it work?
 
