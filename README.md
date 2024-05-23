@@ -52,11 +52,11 @@ Slow-down: Holding `W` increasingly slows down each object.
 
 Slo-mo: Holding `F` slows the simulation down to a near stop, and reverts speed to normal when released.
 
-An interesting thing to note is that these controls can be applied simultaneously. Feel free to experiment with that!
+An interesting thing to note is that these controls can be applied simultaneously. Feel free to experiment with this!
 
 ## What are the simulation parameters?
 
-In `src/main.cpp`, there are also numerous parameters that you can modify to your liking at the top of the file:
+In `src/main.cpp`, there are numerous parameters that you can modify to your liking at the top of the file:
 - `RENDER_DISPLAY`: If true, the simulation is displayed. Otherwise, it is not.
 - `WINDOW_WIDTH`: The width of the window.
 - `WINDOW_HEIGHT`: the width of the window.
