@@ -8,7 +8,7 @@ This engine uses Verlet integration to accurately model the dynamics of rigid bo
 
 In order to handle multithreading, a thread pool is used, parallelising the work of both the broad and narrow phases of collision resolution across worker threads.
 
-Currently, the broad phase involves spatial partitioning into a uniform collision grid, whilst the narrow phase invovles circle-circle collisions. The linear structure of a uniform grid enables O(1) lookup and an elegant means of multithreading in contrast to the non-linear quadtree or circle tree structures, hence the design choice.
+Currently, the broad phase involves spatial partitioning of objects in a uniform collision grid, whilst the narrow phase involves generic elastic collisions. The linear structure of a uniform grid enables O(1) lookup and an elegant means of multithreading in contrast to the non-linear quadtree or circle tree structures, hence the design choice.
 
 It is important to note that the resolution will only be deterministic if the minimum and maximum radii of objects used in the simulation are the same. This is because a random number generator is used to seed the radii of objects spawned when a range is given.
 
