@@ -36,15 +36,19 @@ cmake --build .
 ./multiThreadedPhysicsEngine
 ```
 
-Now, whenever you want to re-run a simulation, it is as simple as `Up Arrow` then `Enter` (i.e., running that block of commands again).
+Now, whenever you want to re-run a simulation, it is as simple as `Up Arrow` then `Enter` in the terminal (i.e., running that block of commands again).
 
 ### Simulation controls
 
-`A` (Attractor): Holding `A` activates an attractor in the centre of the window.
-`R` (Repeller): Holding `R` activates a repeller in the centre of the window.
-`S` (Speed-up): Holding `S` increasingly speeds up each object.
-`W` (Slow-down): Holding `W` increasingly slows down each object.
-`F` (Slo-mo): Holding `F` slows the simulation down to a near stop.
+Attractor: Holding `A` activates an attractor in the centre of the window.
+
+Repeller: Holding `R` activates a repeller in the centre of the window.
+
+Speed-up: Holding `S` increasingly speeds up each object.
+
+Slow-down: Holding `W` increasingly slows down each object.
+
+Slo-mo: Holding `F` slows the simulation down to a near stop, and reverts speed to normal when released.
 
 An interesting thing to note is that these controls can be applied simultaneously. Feel free to experiment with that!
 
