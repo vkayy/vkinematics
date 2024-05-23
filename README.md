@@ -1,6 +1,6 @@
 # Multithreaded Physics Engine
 
-A 2D physics engine which deterministically resolves and visualises the collisions of thousands of rigid bodies using a custom-written Verlet Integration library.
+A 2D physics engine which deterministically resolves and visualises the collisions of particles using a custom-written Verlet Integration library.
 
 ## How does it work?
 
@@ -36,19 +36,23 @@ cmake --build .
 ./multiThreadedPhysicsEngine
 ```
 
-Now, whenever you want to re-run a simulation, it is as simple as `Up Arrow` then `Enter` (i.e., running that block of commands again).
+Now, whenever you want to re-run a simulation, it is as simple as `Up Arrow` then `Enter` in the terminal (i.e., running that block of commands again).
 
-### Simulation controls
+## What are the simulation controls?
 
-`A` (Attractor): Holding `A` activates an attractor in the centre of the window.
-`R` (Repeller): Holding `R` activates a repeller in the centre of the window.
-`S` (Speed-up): Holding `S` increasingly speeds up each object.
-`W` (Slow-down): Holding `W` increasingly slows down each object.
-`F` (Slo-mo): Holding `F` slows the simulation down to a near stop.
+Attractor: Holding `A` activates an attractor in the centre of the window.
+
+Repeller: Holding `R` activates a repeller in the centre of the window.
+
+Speed-up: Holding `S` increasingly speeds up each object.
+
+Slow-down: Holding `W` increasingly slows down each object.
+
+Slo-mo: Holding `F` slows the simulation down to a near stop, and reverts speed to normal when released.
 
 An interesting thing to note is that these controls can be applied simultaneously. Feel free to experiment with that!
 
-### Simulation parameters
+## What are the simulation parameters?
 
 In `src/main.cpp`, there are also numerous parameters that you can modify to your liking at the top of the file:
 - `RENDER_DISPLAY`: If true, the simulation is displayed. Otherwise, it is not.
@@ -70,6 +74,8 @@ In `src/main.cpp`, there are also numerous parameters that you can modify to you
     - Any other (invalid) option will default to multithreading.
 - `GRAVITY_ON`: If true, objects are affected by gravity. Otherwise, they are not.
 - `SPAWN_POSITION`: The spawn position of each object. Ensure this is in terms of `WINDOW_WIDTH` and `WINDOW_HEIGHT` to prevent out-of-bounds spawning.
+
+Note that lower spawn delay and higher spawn speed can cause extremely rapid movement, which can lead to a crash if values are too extreme.
 
 ## How is performance measured?
 
@@ -97,12 +103,14 @@ test/benchmark_simulation --benchmark_out=test/benchmark_simulation.csv --benchm
 ```
 Finally, the above runs the benchmark executable, which then causes it to output the results into your console and a `.csv` file. To read more about the various options, check out the [Google Benchmark user guide](https://github.com/google/benchmark/blob/main/docs/user_guide.md).
 
-Upon benchmarking, a clear pattern appears. As the brute-force algorithm is of quadratic time complexity with respect to the number of objects, mean operation time unsurprisingly scales quadratically as the number of objects increases. On the other hand, by using spatial partitioning with some pruning, we achieve time complexity that is closer to linear, which is then improved further by a constant through multithreading.
+## How do the collision resolving algorithms compare?
 
-It is important to stress that the time complexity of the spatial partitioning is **closer** to linear. As the number of objects increases with respect to the size of the window, the average number of objects per cell increases, and this means that objects are more clustered. However, as we increase from 1,000 to 40,000 objects of radius 10 in a 2000 x 2000 window (0.1 to 4 objects per cell), we still retain a loglinear worst case.
+As the brute-force algorithm is of quadratic time complexity with respect to the number of objects, its mean operation time unsurprisingly scales quadratically as the number of objects increases. On the other hand, by using spatial partitioning with some pruning, we achieve time complexity that is closer to linear, which is then improved further by a constant through multithreading.
+
+It is important to stress that the time complexity of the spatial partitioning is closer to, but not exactly linear. As the number of objects increases with respect to the size of the window, the average number of objects per cell increases, and this means that objects are more clustered. However, as we increase from 1,000 to 40,000 objects of radius 10 in a 2000 x 2000 window (0.1 to 4 objects per cell), we still retain a loglinear worst case (you can try running these benchmarks yourself locally).
 
 As each cell has a side length of the maximum diameter, at 4 objects per cell, we have 4 objects packed into the space available for one -- a scenario unlikely to be simulated -- yet, despite the unrealistic levels of clustering, we sustain a non-quadratic time complexity, illustrating the efficiency of the multithreaded algorithm from average to worst-case scenarios.
 
 ## What are the next steps?
 
-At the moment, we can only simulate rigid-body physics. However, I have intentions of simulating soft-body physics later on.
+At the moment, the engine only supports rigid-body dynamics. I intend on implementing soft-body dynamics in future. Moreover, if time is available, I may extend this engine to 3D, however, this would require a complete migration from SFML to OpenGL.
