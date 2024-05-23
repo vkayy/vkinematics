@@ -205,7 +205,7 @@ private:
             const float total_mass_proportion = mass_proportion1 + mass_proportion2;
 
             const float distance = sqrt(square_distance);
-            const sf::Vector2f collision_factor = displacement / distance;
+            const sf::Vector2f collision_factor = distance ? displacement / distance : displacement;
             const float collision_ratio1 = mass_proportion2 / total_mass_proportion;
             const float collision_ratio2 = mass_proportion1 / total_mass_proportion;
             const float delta = 0.5f * RESPONSE_COEF * (distance - min_distance);
