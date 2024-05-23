@@ -38,15 +38,21 @@ void runSimulation(
 ) {
     
     sf::ContextSettings settings;
-    settings.antialiasingLevel = 1;
+    settings.antialiasingLevel = 2;
     sf::RenderWindow window(sf::VideoMode(window_width, window_height), "Multithreaded Physics Engine", sf::Style::Default, settings);
 
     tp::ThreadPool thread_pool(thread_count);
 
+    float cell_size = 2 * max_radius;
+    if (collision_resolver == 2 && window_width / cell_size / thread_count < 2) {
+        cell_size = window_width / thread_count / 2;
+    }
+    
+
     Solver solver(
         sf::Vector2f(window_width, window_height),
         substeps,
-        max_radius,
+        cell_size,
         framerate_limit,
         speed_colouring,
         thread_pool,
@@ -65,6 +71,9 @@ void runSimulation(
             } else {
                 solver.setAttractor(sf::Keyboard::isKeyPressed(sf::Keyboard::A));
                 solver.setRepeller(sf::Keyboard::isKeyPressed(sf::Keyboard::R));
+                solver.setSpeedUp(sf::Keyboard::isKeyPressed(sf::Keyboard::S));
+                solver.setSlowDown(sf::Keyboard::isKeyPressed(sf::Keyboard::W));
+                solver.setSlomo(sf::Keyboard::isKeyPressed(sf::Keyboard::F));
             }
         }
         if (solver.objects.size() < max_object_count && clock.getElapsedTime().asSeconds() >= spawn_delay) {

@@ -6,12 +6,13 @@
 
 #include "verlet.hpp"
 #include "uniform-collision-grid.hpp"
+#include "../maths/dot.hpp"
 #include "../thread_pool/thread_pool.hpp"
 
 constexpr int DEFAULT_SUBSTEPS = 8;
 constexpr float MARGIN_WIDTH = 2.0f;
 constexpr float GRAVITY_CONST = 1000.0f;
-constexpr float RESPONSE_COEF = 0.1f;
+constexpr float RESPONSE_COEF = 1.0f;
 constexpr float ATTRACTOR_STRENGTH = 2000.0f;
 constexpr float REPELLER_STRENGTH = 2000.0f;
 
@@ -28,6 +29,10 @@ public:
 
     bool attractor_active = false;
     bool repeller_active = false;
+    bool speedup_active = false;
+    bool slowdown_active = false;
+    bool slomo_active = false;
+    
     bool speed_colouring = false;
 
     int32_t substeps;
@@ -99,6 +104,18 @@ public:
         repeller_active = active;
     }
 
+    void setSpeedUp(bool active) {
+        speedup_active = active;
+    }
+
+    void setSlowDown(bool active) {
+        slowdown_active = active;
+    }
+
+    void setSlomo(bool active) {
+        slomo_active = active;
+    }
+
     void setObjectVelocity(VerletObject &object, sf::Vector2f velocity) {
         object.setVelocity(velocity, getStepDt());
     }
@@ -132,6 +149,24 @@ private:
         }
     }
 
+    void applySpeedUp(VerletObject &object) {
+        const float step_dt = getStepDt();
+        const sf::Vector2f velocity = object.getVelocity(step_dt);
+        object.addVelocity(0.001f * velocity, step_dt);
+    }
+
+    void applySlowDown(VerletObject &object) {
+        const float step_dt = getStepDt();
+        const sf::Vector2f velocity = object.getVelocity(step_dt);
+        object.setVelocity(0.999f * velocity, step_dt);
+    }
+
+    void applySlomo(VerletObject &object) {
+        const float step_dt = getStepDt();
+        const sf::Vector2f velocity = object.getVelocity(step_dt);
+        object.setVelocity(-velocity, step_dt);
+    }
+
     void applyBorders(VerletObject &object) {
         const float margin = MARGIN_WIDTH + object.radius;
         sf::Vector2f collision_factor = {0.0f, 0.0f};
@@ -145,7 +180,7 @@ private:
         } else if (object.curr_position.y < margin) {
             collision_factor -= {0.0f, (margin - object.curr_position.y)};
         }
-        object.curr_position -= 0.5f * collision_factor * RESPONSE_COEF;
+        object.curr_position -= 0.2f * collision_factor * RESPONSE_COEF;
     }
 
     void addObjectsToGrid() {
@@ -166,10 +201,14 @@ private:
         const float square_distance = displacement.x * displacement.x + displacement.y * displacement.y;
         const float min_distance = object1.radius + object2.radius;
         if (square_distance < min_distance * min_distance) {
+            const float mass_proportion1 = object1.radius * object1.radius * object1.radius;
+            const float mass_proportion2 = object2.radius * object2.radius * object2.radius;
+            const float total_mass_proportion = mass_proportion1 + mass_proportion2;
+
             const float distance = sqrt(square_distance);
             const sf::Vector2f collision_factor = displacement / distance;
-            const float collision_ratio1 = object2.radius / (object1.radius + object2.radius);
-            const float collision_ratio2 = object1.radius / (object1.radius + object2.radius);
+            const float collision_ratio1 = mass_proportion2 / total_mass_proportion;
+            const float collision_ratio2 = mass_proportion1 / total_mass_proportion;
             const float delta = 0.5f * RESPONSE_COEF * (distance - min_distance);
             object1.curr_position -= collision_factor * (collision_ratio1 * delta);
             object2.curr_position += collision_factor * (collision_ratio2 * delta);
@@ -196,75 +235,82 @@ private:
         const int32_t x = index / grid.height;
         const int32_t y = index % grid.height;
         for (const auto &object_id : cell.objects) {
-            solveObjectCellCollisions(object_id, grid.cells[index]);
-            if (y > 1) solveObjectCellCollisions(object_id, grid.cells[index - 1]);
-            if (y < grid.height - 1) solveObjectCellCollisions(object_id, grid.cells[index + 1]);
-            if (x > 1) {
+            if (x > 0) {
                 solveObjectCellCollisions(object_id, grid.cells[index - grid.height]);
-                if (y > 1) solveObjectCellCollisions(object_id, grid.cells[index - grid.height - 1]);
+                if (y > 0) solveObjectCellCollisions(object_id, grid.cells[index - grid.height - 1]);
                 if (y < grid.height - 1) solveObjectCellCollisions(object_id, grid.cells[index - grid.height + 1]);
             }
             if (x < grid.width - 1) {
                 solveObjectCellCollisions(object_id, grid.cells[index + grid.height]);
-                if (y > 1) solveObjectCellCollisions(object_id, grid.cells[index + grid.height - 1]);
+                if (y > 0) solveObjectCellCollisions(object_id, grid.cells[index + grid.height - 1]);
                 if (y < grid.height - 1) solveObjectCellCollisions(object_id, grid.cells[index + grid.height + 1]);
             }
+            if (y > 0) solveObjectCellCollisions(object_id, grid.cells[index - 1]);
+            if (y < grid.height - 1) solveObjectCellCollisions(object_id, grid.cells[index + 1]);
+            solveObjectCellCollisions(object_id, grid.cells[index]);
         }
     }
 
 
     void solveCollisionsCellular() {
         for (uint32_t idx=0; idx<grid.cells.size(); idx++) {
-            if (grid.cells[idx].object_count > 0 &&
-                idx / grid.height > 0 && idx / grid.height < grid.width - 1 &&
-                idx % grid.height > 0 && idx % grid.height < grid.height - 1) {
+            if (grid.cells[idx].object_count > 0) {
                 processCell(grid.cells[idx], idx);
             }
         }
     }
 
+    void updateObject(VerletObject &object, float dt) {
+        object.acceleration -= gravity;
+        if (attractor_active) {
+            applyAttractor(object);
+        }
+        if (repeller_active) {
+            applyRepeller(object);
+        }
+        if (speedup_active) {
+            applySpeedUp(object);
+        }
+        if (slowdown_active) {
+            applySlowDown(object);
+        }
+        if (slomo_active) {
+            applySlomo(object);
+        }
+        object.updatePosition(dt);
+        if (speed_colouring) {
+            object.updateColour(dt);
+        }
+        applyBorders(object);
+    }
+
     void updateObjects(float dt) {
         for (auto &object : objects) {
-            object.acceleration -= gravity;
-            if (attractor_active) {
-                applyAttractor(object);
+            updateObject(object, dt);
+        }
+    }
+
+    void updateObjectsCellular(float dt) {
+        for (auto &cell : grid.cells) {
+            if (cell.object_count > 0) {
+                for (auto &object_id : cell.objects) {
+                    updateObject(objects[object_id], dt);
+                }
             }
-            if (repeller_active) {
-                applyRepeller(object);
-            }
-            object.updatePosition(dt);
-            if (speed_colouring) {
-                object.updateColour(dt);
-            }
-            applyBorders(object);
         }
     }
 
     void updateObjectsThreaded(float dt) {
         thread_pool.dispatch(objects.size(), [&](uint32_t start, uint32_t end) {
             for (uint32_t idx=start; idx<end; idx++) {
-                VerletObject &object = objects[idx];
-                object.acceleration -= gravity;
-                if (attractor_active) {
-                    applyAttractor(object);
-                }
-                if (repeller_active) {
-                    applyRepeller(object);
-                }
-                object.updatePosition(dt);
-                if (speed_colouring) {
-                    object.updateColour(dt);
-                }
-                applyBorders(object);
+                updateObject(objects[idx], dt);
             }
         });
     }
 
     void solvePartitionThreaded(uint32_t start, uint32_t end) {
         for (uint32_t idx=start; idx<end; idx++) {
-            if (grid.cells[idx].object_count > 0 &&
-                idx / grid.height > 0 && idx / grid.height < grid.width - 1 &&
-                idx % grid.height > 0 && idx % grid.height < grid.height - 1) {
+            if (grid.cells[idx].object_count > 0) {
                 processCell(grid.cells[idx], idx);
             }
         }
@@ -283,16 +329,16 @@ private:
                 solvePartitionThreaded(start, end);
             });
         }
-        if (last_cell < grid.cells.size()) {
-            thread_pool.enqueueTask([this, last_cell]{
-                solvePartitionThreaded(last_cell, grid.cells.size());
-            });
-        }
         for (uint32_t idx=0; idx<thread_count; idx++) {
             thread_pool.enqueueTask([this, idx, partition_size]{
                 uint32_t const start = (2 * idx + 1) * partition_size;
                 uint32_t const end = start + partition_size;
                 solvePartitionThreaded(start, end);
+            });
+        }
+        if (last_cell < grid.cells.size()) {
+            thread_pool.enqueueTask([this, last_cell]{
+                solvePartitionThreaded(last_cell, grid.cells.size());
             });
         }
         thread_pool.completeAllTasks();

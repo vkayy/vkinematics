@@ -49,8 +49,7 @@ struct VerletObject {
     }
 
     void setVelocity(sf::Vector2f v, float dt) {
-        last_position = curr_position;
-        addVelocity(v, dt);
+        last_position = curr_position - v * dt;
     }
 
     sf::Vector2f getVelocity(float dt) {
