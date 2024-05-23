@@ -6,7 +6,7 @@ Deterministically resolves particle interactions using a custom-written Verlet i
 
 This engine uses Verlet integration to accurately model the dynamics of rigid bodies in a closed space, including collisions.
 
-In order to handle multithreading, a thread pool is used, parallelising the work of both the broad phase and narrow phases of collision resolution across worker threads.
+In order to handle multithreading, a thread pool is used, parallelising the work of both the broad and narrow phases of collision resolution across worker threads.
 
 Currently, the broad phase involves spatial partitioning into a uniform collision grid, whilst the narrow phase invovles circle-circle collisions. The linear structure of a uniform grid enables O(1) lookup and an elegant means of multithreading in contrast to the non-linear quadtree or circle tree structures, hence the design choice.
 
