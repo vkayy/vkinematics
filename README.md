@@ -10,7 +10,7 @@ In order to handle multithreading, a thread pool is used, parallelising the work
 
 Currently, the broad phase involves spatial partitioning of objects in a uniform collision grid, whilst the narrow phase involves generic elastic collisions.
 
-The linear structure of a uniform collision grid enables botj O(1) lookup and an elegant means of multithreading in contrast to the non-linear quadtree or circle tree structures, hence the design choice in this engine.
+The linear structure of a uniform collision grid enables both O(1) lookup and an elegant means of multithreading in contrast to the non-linear quadtree or circle tree structures, hence the design choice in this engine.
 
 It is important to note that the resolution will only be deterministic if the minimum and maximum radii of objects used in the simulation are the same. This is because a random number generator is used to seed the radii of objects spawned when a range is given.
 
