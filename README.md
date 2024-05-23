@@ -38,7 +38,7 @@ cmake --build .
 
 Now, whenever you want to re-run a simulation, it is as simple as `Up Arrow` then `Enter` in the terminal (i.e., running that block of commands again).
 
-### Simulation controls
+## What are the simulation controls?
 
 Attractor: Holding `A` activates an attractor in the centre of the window.
 
@@ -52,7 +52,7 @@ Slo-mo: Holding `F` slows the simulation down to a near stop, and reverts speed 
 
 An interesting thing to note is that these controls can be applied simultaneously. Feel free to experiment with that!
 
-### Simulation parameters
+## What are the simulation parameters?
 
 In `src/main.cpp`, there are also numerous parameters that you can modify to your liking at the top of the file:
 - `RENDER_DISPLAY`: If true, the simulation is displayed. Otherwise, it is not.
