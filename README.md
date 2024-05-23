@@ -1,6 +1,6 @@
 # Multithreaded Physics Engine
 
-Deterministically resolves and visualises the collisions of particles using a custom-written Verlet integration library, optimised with spatial partitioning and multithreading.
+Deterministically resolves particle interactions using a custom-written Verlet integration library, optimised with spatial partitioning and multithreading.
 
 ## How does it work?
 
