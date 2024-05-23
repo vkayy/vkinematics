@@ -120,7 +120,7 @@ resolver_multithreaded_objects/100/0/6/0/0/1406/5/process_time     489554195 ns
 
 The first benchmark runs 625 objects of diameter 20 on a 500 x 500 window: (500 columns / 20 diameter)^2 = 625 cells. The multithreaded algorithm's runtime is approximately 95% faster.
 
-The next benchmark runs 1406 objects of diameter 20 on a 750 x 750 window: (750 columns / 20 diameter)^2 = 1406.25. The multithreaded algorithm's runtime is approximately 98% faster.
+The next benchmark runs 1406 objects of diameter 20 on a 750 x 750 window: (750 columns / 20 diameter)^2 = 1406.25 cells. The multithreaded algorithm's runtime is approximately 98% faster.
 
 Notice that as the number of objects increased, the efficiency increase also did -- this is, again, because the multithreaded algorithm has a better time complexity than the brute-force algorithm. Moreover, as we increase from 10,000 to 40,000 objects of radius 10 in a 2000 x 2000 window (from 1 to 4 objects per cell), we still retain a loglinear worst case (you can try running these benchmarks yourself locally).
 
