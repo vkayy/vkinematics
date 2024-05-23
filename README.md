@@ -107,9 +107,24 @@ Finally, the above runs the benchmark executable, which then causes it to output
 
 As the brute-force algorithm is of quadratic time complexity with respect to the number of objects, its mean operation time unsurprisingly scales quadratically as the number of objects increases. On the other hand, by using spatial partitioning with some pruning, we achieve time complexity that is closer to linear, which is then improved further by a constant through multithreading.
 
-It is important to stress that the time complexity of the spatial partitioning is closer to, but not exactly linear. As the number of objects increases with respect to the size of the window, the average number of objects per cell increases, and this means that objects are more clustered. However, as we increase from 1,000 to 40,000 objects of radius 10 in a 2000 x 2000 window (0.1 to 4 objects per cell), we still retain a loglinear worst case (you can try running these benchmarks yourself locally).
+It is important to stress that the time complexity of the spatial partitioning is closer to, but not exactly linear. As the number of objects increases with respect to the size of the window, the average number of objects per cell increases, and this means that objects are more clustered. As the spatial partitioning algorithm used sets cell size to the diameter, let us consider a worst-case scenario where all cells are filled.
 
-As each cell has a side length of the maximum diameter, at 4 objects per cell, we have 4 objects packed into the space available for one -- a scenario unlikely to be simulated -- yet, despite the unrealistic levels of clustering, we sustain a non-quadratic time complexity, illustrating the efficiency of the multithreaded algorithm from average to worst-case scenarios.
+```
+                         BENCHMARK                                    TIME
+resolver_brute_force_objects/100/2/1/0/0/625/5/process_time       4671601445 ns   
+resolver_multithreaded_objects/100/0/6/0/0/625/5/process_time      242019838 ns    
+
+resolver_brute_force_objects/100/2/1/0/0/1406/5/process_time      2.3422e+10 ns  
+resolver_multithreaded_objects/100/0/6/0/0/1406/5/process_time     489554195 ns   
+```
+
+The first benchmark runs 625 objects of diameter 20 on a 500 x 500 window: (500 columns / 20 diameter)^2 = 625 cells. The multithreaded algorithm's runtime is approximately 95% faster.
+
+The next benchmark runs 1406 objects of diameter 20 on a 750 x 750 window: (750 columns / 20 diameter)^2 = 1406.25. The multithreaded algorithm's runtime is approximately 98% faster.
+
+Notice that as the number of objects increased, the efficiency increase also did -- this is, again, because the multithreaded algorithm has a better time complexity than the brute-force algorithm. Moreover, as we increase from 10,000 to 40,000 objects of radius 10 in a 2000 x 2000 window (from 1 to 4 objects per cell), we still retain a loglinear worst case (you can try running these benchmarks yourself locally).
+
+As each cell has a side length of the maximum diameter, at 4 objects per cell, we have a level of clustering much less likely to be simulated -- yet, despite the unrealistic levels of clustering, we sustain a non-quadratic time complexity, illustrating the efficiency of the multithreaded algorithm from average to worst-case scenarios.
 
 ## What are the next steps?
 
