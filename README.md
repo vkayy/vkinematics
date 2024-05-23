@@ -1,14 +1,16 @@
 # Multithreaded Physics Engine
 
-A 2D physics engine which deterministically resolves and visualises the collisions of particles using a custom-written Verlet Integration library.
+Deterministically resolves particle interactions using a custom-written Verlet integration library, optimised with spatial partitioning and multithreading.
 
 ## How does it work?
 
-This engine uses Verlet Integration to accurately model the movement of rigid bodies in a dynamic system.
+This engine uses Verlet integration to accurately model the dynamics of rigid bodies in a closed space, including collisions.
 
-In order to handle multithreading, a thread pool is used, parallelising the work of both the broad phase and narrow phases of collision resolution across workers.
+In order to handle multithreading, a thread pool is used, parallelising the work of both the broad and narrow phases of collision resolution across worker threads.
 
-Currently, the broad phase involves spatial partitioning into a uniform collision grid, whilst the narrow phase is AABB-based. The linear structure of a uniform grid enables O(1) lookup and an elegant means of multithreading in contrast to the non-linear quadtree or circle tree structures, hence the design choice.
+Currently, the broad phase involves spatial partitioning of objects in a uniform collision grid, whilst the narrow phase involves generic elastic collisions.
+
+The linear structure of a uniform collision grid enables both O(1) lookup and an elegant means of multithreading in contrast to the non-linear quadtree or circle tree structures, hence the design choice in this engine.
 
 It is important to note that the resolution will only be deterministic if the minimum and maximum radii of objects used in the simulation are the same. This is because a random number generator is used to seed the radii of objects spawned when a range is given.
 
@@ -50,11 +52,11 @@ Slow-down: Holding `W` increasingly slows down each object.
 
 Slo-mo: Holding `F` slows the simulation down to a near stop, and reverts speed to normal when released.
 
-An interesting thing to note is that these controls can be applied simultaneously. Feel free to experiment with that!
+An interesting thing to note is that these controls can be applied simultaneously. Feel free to experiment with this!
 
 ## What are the simulation parameters?
 
-In `src/main.cpp`, there are also numerous parameters that you can modify to your liking at the top of the file:
+In `src/main.cpp`, there are numerous parameters that you can modify to your liking at the top of the file:
 - `RENDER_DISPLAY`: If true, the simulation is displayed. Otherwise, it is not.
 - `WINDOW_WIDTH`: The width of the window.
 - `WINDOW_HEIGHT`: the width of the window.
@@ -75,11 +77,11 @@ In `src/main.cpp`, there are also numerous parameters that you can modify to you
 - `GRAVITY_ON`: If true, objects are affected by gravity. Otherwise, they are not.
 - `SPAWN_POSITION`: The spawn position of each object. Ensure this is in terms of `WINDOW_WIDTH` and `WINDOW_HEIGHT` to prevent out-of-bounds spawning.
 
-Note that lower spawn delay and higher spawn speed can cause extremely rapid movement, which can lead to a crash if values are too extreme.
+Note that extremely low and high spawn delay and speed respectively can cause extremely rapid movement, and this can lead to a crash if too extreme.
 
 ## How is performance measured?
 
-By using Google Benchmark, I wrote a series of simple benchmarks to analyse the performance of various thread counts, resolvers, and other parameters.
+By using Google Benchmark, I wrote a series of (swept-parameter) benchmarks to analyse the performance of various thread counts, resolvers, and other parameters.
 
 If you'd like to run the benchmarking locally, `cd` into `src`, then run the following commands:
 
@@ -107,9 +109,24 @@ Finally, the above runs the benchmark executable, which then causes it to output
 
 As the brute-force algorithm is of quadratic time complexity with respect to the number of objects, its mean operation time unsurprisingly scales quadratically as the number of objects increases. On the other hand, by using spatial partitioning with some pruning, we achieve time complexity that is closer to linear, which is then improved further by a constant through multithreading.
 
-It is important to stress that the time complexity of the spatial partitioning is closer to, but not exactly linear. As the number of objects increases with respect to the size of the window, the average number of objects per cell increases, and this means that objects are more clustered. However, as we increase from 1,000 to 40,000 objects of radius 10 in a 2000 x 2000 window (0.1 to 4 objects per cell), we still retain a loglinear worst case (you can try running these benchmarks yourself locally).
+It is important to stress that the time complexity of the spatial partitioning is closer to, but not exactly linear. As the number of objects increases with respect to the size of the window, the average number of objects per cell increases, and this means that objects are more clustered. As the spatial partitioning algorithm used sets cell size to the diameter, let us consider a worst-case scenario where all cells are filled.
 
-As each cell has a side length of the maximum diameter, at 4 objects per cell, we have 4 objects packed into the space available for one -- a scenario unlikely to be simulated -- yet, despite the unrealistic levels of clustering, we sustain a non-quadratic time complexity, illustrating the efficiency of the multithreaded algorithm from average to worst-case scenarios.
+```
+                         BENCHMARK                                    TIME
+resolver_brute_force_objects/100/2/1/0/0/625/5/process_time       4671601445 ns   
+resolver_multithreaded_objects/100/0/6/0/0/625/5/process_time      242019838 ns    
+
+resolver_brute_force_objects/100/2/1/0/0/1406/5/process_time      2.3422e+10 ns  
+resolver_multithreaded_objects/100/0/6/0/0/1406/5/process_time     489554195 ns   
+```
+
+The first benchmark runs 625 objects of diameter 20 on a 500 x 500 window: (500 columns / 20 diameter)^2 = 625 cells. The multithreaded algorithm's runtime is approximately 95% faster.
+
+The next benchmark runs 1406 objects of diameter 20 on a 750 x 750 window: (750 columns / 20 diameter)^2 = 1406.25 cells. The multithreaded algorithm's runtime is approximately 98% faster.
+
+Notice that as the number of objects increased, the efficiency increase also did -- this is, again, because the multithreaded algorithm has a better time complexity than the brute-force algorithm. Moreover, as we increase from 10,000 to 40,000 objects of radius 10 in a 2000 x 2000 window (from 1 to 4 objects per cell), we still retain a loglinear worst case (you can try running these benchmarks yourself locally).
+
+As each cell has a side length of the maximum diameter, at 4 objects per cell, we have a level of clustering much less likely to be simulated -- yet, despite the unrealistic levels of clustering, we sustain a non-quadratic time complexity, illustrating the efficiency of the multithreaded algorithm from average to worst-case scenarios.
 
 ## What are the next steps?
 
