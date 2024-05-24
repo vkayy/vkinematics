@@ -72,7 +72,7 @@ In `src/main.cpp`, there are numerous parameters that you can modify to your lik
     - Any other (invalid) option will default to multithreading.
 - `GRAVITY_ON`: If true, objects are affected by gravity. Otherwise, they are not.
 
-Next, before running the simulation, you can queue a spawn, taking five parameters:
+Next, before running the simulation, you can enqueue some spawns, taking five parameters:
 - `count`: The number of particles to spawn.
 - `spawn_position`: The relative position in the window to spawn the particles (each coordinate in 0-1).
 - `spawn_speed`: The speed at which the particles spawn.
