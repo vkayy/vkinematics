@@ -6,10 +6,8 @@ constexpr bool RENDER_DISPLAY = true;
 constexpr int32_t WINDOW_WIDTH = 1500;
 constexpr int32_t WINDOW_HEIGHT = 1000;
 
-constexpr float MAX_OBJECT_COUNT = 1000;
 constexpr float MIN_RADIUS = 10.0f;
 constexpr float MAX_RADIUS = 10.0f;
-constexpr float MAX_ANGLE = M_PI / 2;
 
 constexpr bool SPEED_COLOURING = true;
 constexpr float SPAWN_DELAY = 0.005f;
@@ -34,7 +32,6 @@ int main() {
         WINDOW_HEIGHT,
         MIN_RADIUS,
         MAX_RADIUS,
-        MAX_ANGLE,
         SPEED_COLOURING,
         FRAMERATE_LIMIT,
         THREAD_COUNT,
@@ -44,26 +41,18 @@ int main() {
         NAME
     };
     simulation.enqueueSpawn(
-        true,
         100,
         {0.5f, 0.5f},
         10.0f,
         0.005f,
-        1.0f,
-        10.0f,
-        10.0f,
-        0.0f
+        1.0f
     );
     simulation.enqueueSpawn(
-        true,
         20,
         {0.5f, 0.5f},
         10.0f,
         0.005f,
-        1.0f,
-        10.0f,
-        10.0f,
-        2.0f
+        1.0f
     );
     simulation.run();
     return 0;

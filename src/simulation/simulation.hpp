@@ -10,33 +10,21 @@
 #include "../thread_pool/thread_pool.hpp"
 
 struct SpawnTask {
-    bool linked;
     std::pair<float, float> position;
     float speed;
     float delay;
     float angle;
-    float min_radius;
-    float max_radius;
-    float target_distance;
 
     SpawnTask(
-        bool linked,
         std::pair<float, float> position,
         float speed,
         float delay,
-        float angle,
-        float min_radius,
-        float max_radius,
-        float target_distance
+        float angle
     )
-    : linked{linked}
-    , position{position}
+    : position{position}
     , speed{speed}
     , delay{delay}
     , angle{angle}
-    , min_radius{min_radius}
-    , max_radius{max_radius}
-    , target_distance{target_distance}
     {}
 };
 
@@ -47,7 +35,6 @@ struct Simulation {
         int32_t window_height,
         float min_radius,
         float max_radius,
-        float max_angle,
         bool speed_colouring,
         int32_t framerate_limit,
         int32_t thread_count,
@@ -60,7 +47,6 @@ struct Simulation {
     , window_width{window_width}
     , min_radius{min_radius}
     , max_radius{max_radius}
-    , max_angle{max_angle}
     , speed_colouring{speed_colouring}
     , framerate_limit{framerate_limit}
     , thread_count{thread_count}
@@ -91,28 +77,19 @@ struct Simulation {
     {}
 
 public:
-
     void enqueueSpawn(
-        bool linked,
         int32_t count,
         std::pair<float, float> spawn_position,
         float spawn_speed,
         float spawn_delay,
-        float spawn_angle,
-        float min_radius,
-        float max_radius,
-        float target_distance
+        float spawn_angle
     ) {
         for (int i=0; i<count; i++) {
             spawn_queue.emplace(
-                linked,
                 spawn_position,
                 spawn_speed,
                 spawn_delay,
-                spawn_angle,
-                min_radius,
-                max_radius,
-                target_distance
+                spawn_angle
             );
         }
     }
@@ -129,7 +106,6 @@ public:
     }
 
 private:
-
     bool render_display;
     int32_t window_width;
     int32_t window_height;
@@ -187,7 +163,7 @@ private:
                     current_spawn.position.first * window_width,
                     current_spawn.position.second * window_height
                 },
-                rng.getRange(current_spawn.min_radius, current_spawn.max_radius)
+                rng.getRange(min_radius, max_radius)
             );
             const float time = solver.time;
             const float angle = current_spawn.angle;
@@ -196,16 +172,6 @@ private:
                 object,
                 current_spawn.speed * sf::Vector2f{cos(angle), sin(angle)}
             );
-            // if (current_spawn.linked && last_linked) {
-            //     VerletLink &link = solver.addLink(
-            //         *last_linked,
-            //         object,
-            //         current_spawn.target_distance
-            //     );
-            // }
-            // if (current_spawn.linked) {
-            //     last_linked = &object;
-            // }
             spawn_queue.pop();
         }
     }

@@ -60,13 +60,9 @@ In `src/main.cpp`, there are numerous parameters that you can modify to your lik
 - `RENDER_DISPLAY`: If true, the simulation is displayed. Otherwise, it is not.
 - `WINDOW_WIDTH`: The width of the window.
 - `WINDOW_HEIGHT`: the width of the window.
-- `MAX_OBJECT_COUNT`: The maximum object count.
 - `MIN_RADIUS`: The minimum object radius.
 - `MAX_RADIUS`: The maximum object radius.
-- `MAX_ANGLE`: The maximum angle of object spawn velocity.
 - `SPEED_COLOURING`: If true, objects are coloured based on speed. By default, they are coloured by rainbow.
-- `SPAWN_DELAY`: The delay between consecutive object spawns.
-- `SPAWN_SPEED`: The speed at which an object spawns.
 - `FRAMERATE_LIMIT`: The maximum framerate.
 - `THREAD_COUNT`: The number of threads used (experiment with this, see what works best for you).
 - `COLLISION_RESOLVER`: Three choices are available:
@@ -75,7 +71,13 @@ In `src/main.cpp`, there are numerous parameters that you can modify to your lik
     - `2`: Single-threaded and brute force collision resolution.
     - Any other (invalid) option will default to multithreading.
 - `GRAVITY_ON`: If true, objects are affected by gravity. Otherwise, they are not.
-- `SPAWN_POSITION`: The spawn position of each object. Ensure this is in terms of `WINDOW_WIDTH` and `WINDOW_HEIGHT` to prevent out-of-bounds spawning.
+
+Next, before running the simulation, you can queue a spawn, taking five parameters:
+- `count`: The number of particles to spawn.
+- `spawn_position`: The relative position in the window to spawn the particles (each coordinate in 0-1).
+- `spawn_speed`: The speed at which the particles spawn.
+- `spawn_delay`: The delay between each particle spawning.
+- `spawn_angle`: The angle at which the particle is spawned.
 
 Note that extremely low and high spawn delay and speed respectively can cause extremely rapid movement, and this can lead to a crash if too extreme.
 
