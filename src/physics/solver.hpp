@@ -6,6 +6,7 @@
 
 #include "verlet.hpp"
 #include "uniform-collision-grid.hpp"
+#include "../utils/maths.hpp"
 #include "../thread_pool/thread_pool.hpp"
 
 constexpr int DEFAULT_SUBSTEPS = 8;
@@ -20,6 +21,7 @@ struct Solver {
 public:
     sf::Vector2f gravity = {0.0f, -GRAVITY_CONST};
     std::vector<VerletObject> objects;
+    // std::vector<VerletLink> links;
     sf::Vector2f simulation_size;
     UniformCollisionGrid grid;
 
@@ -65,12 +67,17 @@ public:
     VerletObject &addObject(sf::Vector2f position, float radius) {
         return objects.emplace_back(position, radius);
     }
+
+    // VerletLink &addLink(VerletObject &object1, VerletObject &object2, float target_distance) {
+    //     return links.emplace_back(object1, object2, target_distance);
+    // }
     
     void updateNaive() {
         time += frame_dt;
         const float step_dt = getStepDt();
         for (int i=0; i<substeps; i++) {
             solveCollisionsNaive();
+            // updateLinks();
             updateObjects(step_dt);
         }
     }
@@ -81,6 +88,7 @@ public:
         for (int i=0; i<substeps; i++) {
             addObjectsToGrid();
             solveCollisionsCellular();
+            // updateLinks();
             updateObjects(step_dt);
         }
     }
@@ -91,6 +99,7 @@ public:
         for (int i=0; i<substeps; i++) {
             addObjectsToGrid();
             solveCollisionsThreaded();
+            // updateLinks();
             updateObjectsThreaded(step_dt);
         }
     }
@@ -132,8 +141,9 @@ private:
 
     void applyAttractor(VerletObject &object) {
         const sf::Vector2f displacement = center - object.curr_position;
-        const float distance = sqrt(displacement.x * displacement.x + displacement.y * displacement.y);
-        if (distance > 0) {
+        const float square_distance = displacement.x * displacement.x + displacement.y * displacement.y;
+        if (square_distance > 0) {
+            const float distance = sqrt(square_distance);
             sf::Vector2f force = (displacement / distance) * ATTRACTOR_STRENGTH;
             object.accelerate(force);
         }
@@ -141,9 +151,10 @@ private:
 
     void applyRepeller(VerletObject &object) {
         const sf::Vector2f displacement = center - object.curr_position;
-        const float distance = sqrt(displacement.x * displacement.x + displacement.y * displacement.y);
-        if (distance > 0) {
-            sf::Vector2f force = (displacement / distance) * REPELLER_STRENGTH;
+        const float square_distance = displacement.x * displacement.x + displacement.y * displacement.y;
+        if (square_distance > 0) {
+            const float distance = sqrt(square_distance);
+            sf::Vector2f force = (displacement / distance) * ATTRACTOR_STRENGTH;
             object.accelerate(-force);
         }
     }
@@ -168,19 +179,25 @@ private:
 
     void applyBorders(VerletObject &object) {
         const float margin = MARGIN_WIDTH + object.radius;
-        sf::Vector2f collision_factor = {0.0f, 0.0f};
+        sf::Vector2f collision_normal = {0.0f, 0.0f};
         if (object.curr_position.x > simulation_size.x - margin) {
-            collision_factor += {(object.curr_position.x - simulation_size.x + margin), 0.0f};
+            collision_normal += {(object.curr_position.x - simulation_size.x + margin), 0.0f};
         } else if (object.curr_position.x < margin) {
-            collision_factor -= {(margin - object.curr_position.x), 0.0f};
+            collision_normal -= {(margin - object.curr_position.x), 0.0f};
         }
         if (object.curr_position.y > simulation_size.y - margin) {
-            collision_factor += {0.0f, (object.curr_position.y - simulation_size.y + margin)};
+            collision_normal += {0.0f, (object.curr_position.y - simulation_size.y + margin)};
         } else if (object.curr_position.y < margin) {
-            collision_factor -= {0.0f, (margin - object.curr_position.y)};
+            collision_normal -= {0.0f, (margin - object.curr_position.y)};
         }
-        object.curr_position -= 0.2f * collision_factor * RESPONSE_COEF;
+        object.curr_position -= 0.2f * collision_normal * RESPONSE_COEF;
     }
+
+    // void updateLinks() {
+    //     for (auto &link : links) {
+    //         link.apply();
+    //     }
+    // }
 
     void addObjectsToGrid() {
         grid.clear();
@@ -205,12 +222,12 @@ private:
             const float total_mass_proportion = mass_proportion1 + mass_proportion2;
 
             const float distance = sqrt(square_distance);
-            const sf::Vector2f collision_factor = distance ? displacement / distance : displacement;
+            const sf::Vector2f collision_normal = displacement / distance;
             const float collision_ratio1 = mass_proportion2 / total_mass_proportion;
             const float collision_ratio2 = mass_proportion1 / total_mass_proportion;
             const float delta = 0.5f * RESPONSE_COEF * (distance - min_distance);
-            object1.curr_position -= collision_factor * (collision_ratio1 * delta);
-            object2.curr_position += collision_factor * (collision_ratio2 * delta);
+            object1.curr_position -= collision_normal * (collision_ratio1 * delta);
+            object2.curr_position += collision_normal * (collision_ratio2 * delta);
         }
     }
 

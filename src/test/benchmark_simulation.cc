@@ -1,6 +1,7 @@
 #include <benchmark/benchmark.h>
 #include <SFML/Graphics.hpp>
 
+#include "../utils/maths.hpp"
 #include "../simulation/simulation.hpp"
 
 static void BM_updateSimulation(benchmark::State &state) {
@@ -35,7 +36,6 @@ static void BM_updateSimulation(benchmark::State &state) {
             sf::Vector2f spawn_position(rng.getRange(window_width), rng.getRange(window_height));
             VerletObject& object = solver.addObject(spawn_position, radius);
             const float t = solver.time;
-            object.colour = getRainbowColour(t);
             const float angle = max_angle * sin(t) + M_PI * 0.5f;
             solver.setObjectVelocity(object, spawn_speed * sf::Vector2f{cos(angle), sin(angle)});
         }
@@ -73,7 +73,7 @@ BENCHMARK(BM_updateSimulation)
 ->ArgsProduct({
     {500},
     {0},
-    benchmark::CreateDenseRange(2, 16, 1),
+    benchmark::CreateDenseRange(2, 8, 1),
     {0},
     {0},
     {1000},
@@ -114,7 +114,7 @@ BENCHMARK(BM_updateSimulation)
 ->ArgsProduct({
     {5, 10, 25, 50, 100, 250, 500, 1000},
     {0},
-    {6},
+    {3},
     {0},
     {0},
     {1000},
@@ -156,7 +156,7 @@ BENCHMARK(BM_updateSimulation)
 ->ArgsProduct({
     {100},
     {0},
-    {6},
+    {3},
     {0},
     {0},
     benchmark::CreateDenseRange(1000, 10000, 250),
@@ -170,7 +170,7 @@ BENCHMARK(BM_updateSimulation)
 ->ArgsProduct({
     {500},
     {0},
-    {5},
+    {3},
     {0, 1},
     {0},
 });

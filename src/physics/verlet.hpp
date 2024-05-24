@@ -56,3 +56,28 @@ struct VerletObject {
         return (curr_position - last_position) / dt;
     }
 };
+
+// struct VerletLink {
+//     VerletObject &object_1;
+//     VerletObject &object_2;
+//     float target_distance;
+    
+//     VerletLink(
+//         VerletObject &object_1,
+//         VerletObject &object_2,
+//         float target_distance
+//     )
+//     : object_1{object_1}
+//     , object_2{object_2}
+//     , target_distance{target_distance}
+//     {}
+
+//     void apply() {
+//         const sf::Vector2f axis = object_1.curr_position - object_2.curr_position;
+//         const float distance = sqrt(axis.x * axis.x + axis.y * axis.y);
+//         const sf::Vector2f normal = axis / distance;
+//         const float delta = target_distance - distance;
+//         object_1.curr_position += 0.5f * delta * normal;      
+//         object_2.curr_position -= 0.5f * delta * normal;
+//     }
+// };

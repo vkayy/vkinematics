@@ -16,7 +16,7 @@ constexpr float SPAWN_DELAY = 0.005f;
 constexpr float SPAWN_SPEED = 10.0f;
 
 constexpr int32_t FRAMERATE_LIMIT = 60;
-constexpr int32_t THREAD_COUNT = 4;
+constexpr int32_t THREAD_COUNT = 3;
 constexpr int32_t SUBSTEPS = 8;
 
 constexpr int8_t COLLISION_RESOLVER = 0;
@@ -25,24 +25,46 @@ bool GRAVITY_ON = false;
 
 const sf::Vector2f SPAWN_POSITION = {WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2};
 
+const std::string NAME = "Multithreaded Physics Engine";
+
 int main() {
-    runSimulation(
+    Simulation simulation{
         RENDER_DISPLAY,
         WINDOW_WIDTH,
         WINDOW_HEIGHT,
-        MAX_OBJECT_COUNT,
         MIN_RADIUS,
         MAX_RADIUS,
         MAX_ANGLE,
         SPEED_COLOURING,
-        SPAWN_DELAY,
-        SPAWN_SPEED,
         FRAMERATE_LIMIT,
         THREAD_COUNT,
         SUBSTEPS,
         COLLISION_RESOLVER,
         GRAVITY_ON,
-        SPAWN_POSITION
+        NAME
+    };
+    simulation.enqueueSpawn(
+        true,
+        100,
+        {0.5f, 0.5f},
+        10.0f,
+        0.005f,
+        1.0f,
+        10.0f,
+        10.0f,
+        0.0f
     );
+    simulation.enqueueSpawn(
+        true,
+        20,
+        {0.5f, 0.5f},
+        10.0f,
+        0.005f,
+        1.0f,
+        10.0f,
+        10.0f,
+        2.0f
+    );
+    simulation.run();
     return 0;
 }
