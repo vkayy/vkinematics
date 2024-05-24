@@ -34,7 +34,7 @@ static void BM_updateSimulation(benchmark::State &state) {
         RNG<float> rng;
         for (int i = 0; i < max_object_count; ++i) {
             sf::Vector2f spawn_position(rng.getRange(window_width), rng.getRange(window_height));
-            VerletObject& object = solver.addObject(spawn_position, radius);
+            VerletObject *object = solver.addObject(spawn_position, radius);
             const float t = solver.time;
             const float angle = max_angle * sin(t) + M_PI * 0.5f;
             solver.setObjectVelocity(object, spawn_speed * sf::Vector2f{cos(angle), sin(angle)});

@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <cmath>
+
 #include <SFML/Graphics.hpp>
 
 #include "verlet.hpp"
@@ -18,29 +19,6 @@ constexpr float REPELLER_STRENGTH = 2000.0f;
 
 
 struct Solver {
-public:
-    sf::Vector2f gravity = {0.0f, -GRAVITY_CONST};
-    std::vector<VerletObject> objects;
-    sf::Vector2f simulation_size;
-    UniformCollisionGrid grid;
-
-    sf::Vector2f center;
-    float cell_size;
-
-    bool attractor_active = false;
-    bool repeller_active = false;
-    bool speedup_active = false;
-    bool slowdown_active = false;
-    bool slomo_active = false;
-    
-    bool speed_colouring = false;
-
-    int32_t substeps;
-    float frame_dt = 0.0f;
-    float time = 0.0f;
-
-    tp::ThreadPool &thread_pool;
- 
     Solver(
         sf::Vector2f size,
         int32_t substeps,
@@ -62,9 +40,21 @@ public:
     {
         grid.clear();
     }
+public:
+    std::vector<VerletObject> objects;
+    std::vector<VerletConstraint> constraints;
+    float time = 0.0f;
 
-    VerletObject &addObject(sf::Vector2f position, float radius) {
-        return objects.emplace_back(position, radius);
+    VerletObject *addObject(sf::Vector2f position, float radius) {
+        return &objects.emplace_back(position, radius);
+    }
+
+    VerletConstraint *addConstraint(
+        VerletObject *object1,
+        VerletObject *object2,
+        float target_distance
+    ) {
+        return &constraints.emplace_back(object1, object2, target_distance);
     }
     
     void updateNaive() {
@@ -72,6 +62,7 @@ public:
         const float step_dt = getStepDt();
         for (int i=0; i<substeps; i++) {
             solveCollisionsNaive();
+            updateConstraints();
             updateObjects(step_dt);
         }
     }
@@ -82,6 +73,7 @@ public:
         for (int i=0; i<substeps; i++) {
             addObjectsToGrid();
             solveCollisionsCellular();
+            updateConstraints();
             updateObjects(step_dt);
         }
     }
@@ -92,6 +84,7 @@ public:
         for (int i=0; i<substeps; i++) {
             addObjectsToGrid();
             solveCollisionsThreaded();
+            updateConstraints();
             updateObjectsThreaded(step_dt);
         }
     }
@@ -116,8 +109,8 @@ public:
         slomo_active = active;
     }
 
-    void setObjectVelocity(VerletObject &object, sf::Vector2f velocity) {
-        object.setVelocity(velocity, getStepDt());
+    void setObjectVelocity(VerletObject *object, sf::Vector2f velocity) {
+        object->setVelocity(velocity, getStepDt());
     }
 
     float getStepDt() {
@@ -125,6 +118,26 @@ public:
     }
 
 private:
+    sf::Vector2f gravity = {0.0f, -GRAVITY_CONST};
+    sf::Vector2f simulation_size;
+    UniformCollisionGrid grid;
+
+    sf::Vector2f center;
+    float cell_size;
+
+    bool attractor_active = false;
+    bool repeller_active = false;
+    bool speedup_active = false;
+    bool slowdown_active = false;
+    bool slomo_active = false;
+    
+    bool speed_colouring = false;
+
+    int32_t substeps;
+    float frame_dt = 0.0f;
+
+    tp::ThreadPool &thread_pool;
+
     void applyGravity() {
         for (auto &obj : objects) {
             obj.acceleration -= gravity;
@@ -289,6 +302,12 @@ private:
     void updateObjects(float dt) {
         for (auto &object : objects) {
             updateObject(object, dt);
+        }
+    }
+
+    void updateConstraints() {
+        for (auto &constraint : constraints) {
+            constraint.apply();
         }
     }
 

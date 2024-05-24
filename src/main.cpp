@@ -17,7 +17,7 @@ constexpr int32_t FRAMERATE_LIMIT = 60;
 constexpr int32_t THREAD_COUNT = 3;
 constexpr int32_t SUBSTEPS = 8;
 
-constexpr int8_t COLLISION_RESOLVER = 0;
+constexpr int8_t COLLISION_RESOLVER = 2;
 
 bool GRAVITY_ON = false;
 
@@ -42,27 +42,33 @@ int main() {
     };
     /*
     simulation.enqueueSpawn(
+        constrained,
         count,
         {x, y}, (each from 0-1)
         spawn speed,
         spawn delay,
-        spawn angle
+        spawn angle,
+        target_distance,
     );
     */
     simulation.enqueueSpawn(
-        100,
+        true,
+        5,
         {0.5f, 0.5f},
         10.0f,
         0.005f,
-        1.0f
+        1.0f,
+        10.0f
     );
-    simulation.enqueueSpawn(
-        20,
-        {0.5f, 0.5f},
-        10.0f,
-        0.005f,
-        1.0f
-    );
+    // simulation.enqueueSpawn(
+    //     false,
+    //     20,
+    //     {0.5f, 0.5f},
+    //     10.0f,
+    //     0.005f,
+    //     1.0f,
+    //     0.0f
+    // );
     simulation.run();
     return 0;
 }
