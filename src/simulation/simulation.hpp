@@ -125,7 +125,6 @@ private:
     Renderer renderer;
     sf::Clock clock;
     RNG<float> rng;
-    VerletObject *last_linked;
     std::queue<SpawnTask> spawn_queue;
 
     static sf::Color getRainbowColour(float time) {
