@@ -21,7 +21,6 @@ struct Solver {
 public:
     sf::Vector2f gravity = {0.0f, -GRAVITY_CONST};
     std::vector<VerletObject> objects;
-    // std::vector<VerletLink> links;
     sf::Vector2f simulation_size;
     UniformCollisionGrid grid;
 
@@ -67,17 +66,12 @@ public:
     VerletObject &addObject(sf::Vector2f position, float radius) {
         return objects.emplace_back(position, radius);
     }
-
-    // VerletLink &addLink(VerletObject &object1, VerletObject &object2, float target_distance) {
-    //     return links.emplace_back(object1, object2, target_distance);
-    // }
     
     void updateNaive() {
         time += frame_dt;
         const float step_dt = getStepDt();
         for (int i=0; i<substeps; i++) {
             solveCollisionsNaive();
-            // updateLinks();
             updateObjects(step_dt);
         }
     }
@@ -88,7 +82,6 @@ public:
         for (int i=0; i<substeps; i++) {
             addObjectsToGrid();
             solveCollisionsCellular();
-            // updateLinks();
             updateObjects(step_dt);
         }
     }
@@ -99,7 +92,6 @@ public:
         for (int i=0; i<substeps; i++) {
             addObjectsToGrid();
             solveCollisionsThreaded();
-            // updateLinks();
             updateObjectsThreaded(step_dt);
         }
     }
@@ -192,12 +184,6 @@ private:
         }
         object.curr_position -= 0.2f * collision_normal * RESPONSE_COEF;
     }
-
-    // void updateLinks() {
-    //     for (auto &link : links) {
-    //         link.apply();
-    //     }
-    // }
 
     void addObjectsToGrid() {
         grid.clear();

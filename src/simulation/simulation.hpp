@@ -44,30 +44,23 @@ struct Simulation {
         std::string name
     )
     : render_display{render_display}
+    , window_height{window_height}
     , window_width{window_width}
     , min_radius{min_radius}
     , max_radius{max_radius}
-    , speed_colouring{speed_colouring}
-    , framerate_limit{framerate_limit}
-    , thread_count{thread_count}
-    , substeps{substeps}
     , collision_resolver{collision_resolver}
-    , gravity_on{gravity_on}
     , thread_pool{tp::ThreadPool(thread_count)}
     , window{
         sf::VideoMode(window_width, window_height),
         name,
         sf::Style::Default,
     }
-    , cell_size{
-        collision_resolver == 2 && window_width / 2 / max_radius / thread_count < 2
-        ? window_width / thread_count / 2
-        : max_radius * 2
-    }
     , solver{
         sf::Vector2f(window_width, window_height),
         substeps,
-        cell_size,
+        collision_resolver == 2 && window_width / 2 / max_radius / thread_count < 2
+        ? window_width / thread_count / 2
+        : max_radius * 2,
         framerate_limit,
         speed_colouring,
         thread_pool,
@@ -112,13 +105,7 @@ private:
     float min_radius;
     float max_radius;
     float max_angle;
-    bool speed_colouring;
-    float cell_size;
-    int32_t framerate_limit;
-    int32_t thread_count;
-    int32_t substeps;
     int8_t collision_resolver;
-    bool gravity_on;
     sf::RenderWindow window;
     tp::ThreadPool thread_pool;
     Solver solver;
