@@ -40,6 +40,15 @@ int main() {
         GRAVITY_ON,
         NAME
     };
+    /*
+    simulation.enqueueSpawn(
+        count,
+        {x, y}, (each from 0-1)
+        spawn speed,
+        spawn delay,
+        spawn angle
+    );
+    */
     simulation.enqueueSpawn(
         100,
         {0.5f, 0.5f},
