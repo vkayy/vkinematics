@@ -10,21 +10,27 @@
 #include "../thread_pool/thread_pool.hpp"
 
 struct SpawnTask {
+    bool constrained;
     std::pair<float, float> position;
     float speed;
     float delay;
     float angle;
+    float target_distance;
 
     SpawnTask(
+        bool constrained,
         std::pair<float, float> position,
         float speed,
         float delay,
-        float angle
+        float angle,
+        float target_distance
     )
-    : position{position}
+    : constrained{constrained}
+    , position{position}
     , speed{speed}
     , delay{delay}
     , angle{angle}
+    , target_distance{target_distance}
     {}
 };
 
@@ -70,18 +76,22 @@ struct Simulation {
 
 public:
     void enqueueSpawn(
+        bool constrained,
         int32_t count,
         std::pair<float, float> spawn_position,
         float spawn_speed,
         float spawn_delay,
-        float spawn_angle
+        float spawn_angle,
+        float target_distance
     ) {
         for (int i=0; i<count; i++) {
             spawn_queue.emplace(
+                constrained,
                 spawn_position,
                 spawn_speed,
                 spawn_delay,
-                spawn_angle
+                spawn_angle,
+                target_distance
             );
         }
     }
@@ -96,7 +106,6 @@ public:
             handleRender();
         }
     }
-
 private:
     bool render_display;
     int32_t window_width;
@@ -111,6 +120,8 @@ private:
     Renderer renderer;
     sf::Clock clock;
     RNG<float> rng;
+    VerletObject *last_added{nullptr};
+    VerletObject *last_constrained{nullptr};
     std::queue<SpawnTask> spawn_queue;
 
     static sf::Color getRainbowColour(float time) {
@@ -143,20 +154,31 @@ private:
         SpawnTask current_spawn = spawn_queue.front();
         if (clock.getElapsedTime().asSeconds() >= current_spawn.delay) {
             clock.restart();
-            VerletObject &object = solver.addObject(
+            last_added = solver.addObject(
                 {
                     current_spawn.position.first * window_width,
                     current_spawn.position.second * window_height
                 },
                 rng.getRange(min_radius, max_radius)
             );
+            std::cout << "hello\n";
             const float time = solver.time;
             const float angle = current_spawn.angle;
-            object.colour = getRainbowColour(time);
+            last_added->colour = getRainbowColour(time);
             solver.setObjectVelocity(
-                object,
+                last_added,
                 current_spawn.speed * sf::Vector2f{cos(angle), sin(angle)}
             );
+            if (current_spawn.constrained && last_constrained) {
+                VerletConstraint *constraint = solver.addConstraint(
+                    last_constrained,
+                    last_added,
+                    current_spawn.target_distance
+                );
+            };
+            if (current_spawn.constrained) {
+                last_constrained = last_added;
+            }
             spawn_queue.pop();
         }
     }
