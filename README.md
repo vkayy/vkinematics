@@ -63,6 +63,7 @@ In `src/main.cpp`, there are numerous parameters that you can modify to your lik
 - `MIN_RADIUS`: The minimum object radius.
 - `MAX_RADIUS`: The maximum object radius.
 - `SPEED_COLOURING`: If true, objects are coloured based on speed. By default, they are coloured by rainbow.
+- `MAX_OBJECT_COUNT`: The maximum number of objects you can spawn.
 - `FRAMERATE_LIMIT`: The maximum framerate.
 - `THREAD_COUNT`: The number of threads used (experiment with this, see what works best for you).
 - `COLLISION_RESOLVER`: Three choices are available:
@@ -72,14 +73,28 @@ In `src/main.cpp`, there are numerous parameters that you can modify to your lik
     - Any other (invalid) option will default to multithreading.
 - `GRAVITY_ON`: If true, objects are affected by gravity. Otherwise, they are not.
 
-Next, before running the simulation, you can queue a spawn, taking five parameters:
+Next, the simulation has some important functions you can use.
+
+`.spawnRope()`: This spawns a rope with an object at the end, taking four parameters:
+- `length`: The number of segments on the rope (each segment is 5 pixels long).
+- `spawn_position`: A pair representing the relative position in the window to spawn the pivot at.
+    - A Cartesian coordinate, with both `x` and `y` between 0 and 1 (e.g., {0.2, 0.8}).
+- `spawn_delay`: The delay between each particle spawning.
+- `radius`: The radius of the object at the end.
+
+`.spawnFree()`: This spawns a number of free partciles, taking five parameters:
 - `count`: The number of particles to spawn.
-- `spawn_position`: The relative position in the window to spawn the particles (each coordinate in 0-1).
+- `spawn_position`: A pair representing the relative position in the window to spawn the pivot at.
+    - A Cartesian coordinate, with both `x` and `y` between 0 and 1 (e.g., {0.2, 0.8}).
 - `spawn_speed`: The speed at which the particles spawn.
 - `spawn_delay`: The delay between each particle spawning.
-- `spawn_angle`: The angle at which the particle is spawned.
+- `spawn_angle`: The angle at which each particle is spawned.
 
-Note that extremely low and high spawn delay and speed respectively can cause extremely rapid movement, and this can lead to a crash if too extreme.
+A reminder of each parameter is in `src/main.cpp`.
+
+`.idle()`: This must be called after all the spawns, as it enables you to continue the simulation after all spawns occur.
+
+Note that extremely low and high spawn delay and speed respectively can cause extremely rapid movement, and unexpected behaviour can be led to occur.
 
 ## How is performance measured?
 
@@ -133,4 +148,4 @@ As each cell has a side length of the maximum diameter, at 4 objects per cell, w
 
 ## What are the next steps?
 
-At the moment, the engine only supports rigid-body dynamics. I intend on implementing soft-body dynamics in future. Moreover, if time is available, I may extend this engine to 3D, however, this would require a complete migration from SFML to OpenGL.
+At the moment, the engine only supports particle dynamics. I intend on implementing rigid and soft-body dynamics in future. Moreover, if time is available, I may extend this engine to 3D, however, this would require a complete migration from SFML to OpenGL, so is definitely a later task.
