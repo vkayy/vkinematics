@@ -55,7 +55,7 @@ int main() {
     */
     simulation.spawnRope(
         50,
-        {0.2f, 0.4f},
+        {0.2f, 0.6f},
         0.005f,
         10.0f
     );
@@ -68,7 +68,7 @@ int main() {
     );
     simulation.spawnRope(
         50,
-        {0.8f, 0.4f},
+        {0.8f, 0.6f},
         0.005f,
         10.0f
     );
