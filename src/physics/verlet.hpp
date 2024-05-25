@@ -11,15 +11,17 @@ struct VerletObject {
     sf::Vector2f curr_position = {0.0f, 0.0f};
     sf::Vector2f last_position = {0.0f, 0.0f};;
     sf::Vector2f acceleration = {0.0f, 0.0f};
-    float radius = DEFAULT_RADIUS;
     sf::Color colour = sf::Color::Red;
+    float radius = DEFAULT_RADIUS;
+    bool fixed;
 
     VerletObject() = default;
-    VerletObject(sf::Vector2f pos, float radius)
+    VerletObject(sf::Vector2f pos, float radius, bool fixed)
         : curr_position{pos}
         , last_position{pos}
         , acceleration{0.0f, 0.0f}
         , radius{radius}
+        , fixed{fixed}
     {}
 
     void updatePosition(float dt) {
@@ -60,26 +62,33 @@ struct VerletObject {
 };
 
 struct VerletConstraint {
-    VerletObject *object_1;
-    VerletObject *object_2;
+    VerletObject &object_1;
+    VerletObject &object_2;
     float target_distance;
     
     VerletConstraint(
-        VerletObject *object_1,
-        VerletObject *object_2,
+        VerletObject &object_1,
+        VerletObject &object_2,
         float target_distance
     )
-    : object_1{std::move(object_1)}
-    , object_2{std::move(object_2)}
+    : object_1{object_1}
+    , object_2{object_2}
     , target_distance{target_distance}
     {}
 
     void apply() {
-        const sf::Vector2f axis = object_1->curr_position - object_2->curr_position;
-        const float distance = sqrt(axis.x * axis.x + axis.y * axis.y);
-        const sf::Vector2f normal = axis / distance;
+        if (object_1.fixed && object_2.fixed) return;
+        const sf::Vector2f axis = object_1.curr_position - object_2.curr_position;
+        const float distance = sqrt(axis.x * axis.x + axis.y * axis.y) - (object_1.radius + object_2.radius);
+        const sf::Vector2f normal = axis * distance / sqrt(axis.x * axis.x + axis.y * axis.y);
         const float delta = target_distance - distance;
-        object_1->curr_position += 0.5f * delta * normal;      
-        object_2->curr_position -= 0.5f * delta * normal;
+        if (object_1.fixed && !object_2.fixed) {
+            object_2.curr_position -= 0.02f * delta * normal;
+        } else if (!object_1.fixed && object_2.fixed) {
+            object_1.curr_position += 0.02f * delta * normal;
+        } else {
+            object_1.curr_position += 0.01f * delta * normal;      
+            object_2.curr_position -= 0.01f * delta * normal;
+        }
     }
 };

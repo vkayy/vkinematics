@@ -7,7 +7,7 @@
 static void BM_updateSimulation(benchmark::State &state) {
     int32_t window_width = 2000;
     int32_t window_height = 2000;
-    float max_object_count = state.range(5);
+    int32_t max_object_count = state.range(5);
     float radius = 10.0f;
     float max_angle = 1.0f;
     bool speed_colouring = state.range(4);
@@ -25,6 +25,7 @@ static void BM_updateSimulation(benchmark::State &state) {
             sf::Vector2f(window_width, window_height),
             substeps,
             radius,
+            max_object_count,
             framerate_limit,
             speed_colouring,
             thread_pool,
@@ -34,7 +35,7 @@ static void BM_updateSimulation(benchmark::State &state) {
         RNG<float> rng;
         for (int i = 0; i < max_object_count; ++i) {
             sf::Vector2f spawn_position(rng.getRange(window_width), rng.getRange(window_height));
-            VerletObject *object = solver.addObject(spawn_position, radius);
+            VerletObject object = solver.addObject(spawn_position, radius);
             const float t = solver.time;
             const float angle = max_angle * sin(t) + M_PI * 0.5f;
             solver.setObjectVelocity(object, spawn_speed * sf::Vector2f{cos(angle), sin(angle)});

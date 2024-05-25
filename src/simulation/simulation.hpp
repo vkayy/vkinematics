@@ -9,30 +9,7 @@
 #include "../renderer/renderer.hpp"
 #include "../thread_pool/thread_pool.hpp"
 
-struct SpawnTask {
-    bool constrained;
-    std::pair<float, float> position;
-    float speed;
-    float delay;
-    float angle;
-    float target_distance;
-
-    SpawnTask(
-        bool constrained,
-        std::pair<float, float> position,
-        float speed,
-        float delay,
-        float angle,
-        float target_distance
-    )
-    : constrained{constrained}
-    , position{position}
-    , speed{speed}
-    , delay{delay}
-    , angle{angle}
-    , target_distance{target_distance}
-    {}
-};
+constexpr float ROPE_SEGMENT_LENGTH = 10.0f;
 
 struct Simulation {
     Simulation(
@@ -42,6 +19,7 @@ struct Simulation {
         float min_radius,
         float max_radius,
         bool speed_colouring,
+        int32_t max_object_count,
         int32_t framerate_limit,
         int32_t thread_count,
         int32_t substeps,
@@ -66,6 +44,7 @@ struct Simulation {
         substeps,
         collision_resolver == 2 && window_width / 2 / max_radius / thread_count < 2
         ? window_width / thread_count / 2 : max_radius * 2,
+        max_object_count,
         framerate_limit,
         speed_colouring,
         thread_pool,
@@ -75,44 +54,83 @@ struct Simulation {
     {}
 
 public:
-    void enqueueSpawn(
-        bool constrained,
-        int32_t count,
+    void spawnRope(
+        int32_t length,
         std::pair<float, float> spawn_position,
-        float spawn_speed,
         float spawn_delay,
-        float spawn_angle,
-        float target_distance
+        float radius
     ) {
-        for (int i=0; i<count; i++) {
-            spawn_queue.emplace(
-                constrained,
-                spawn_position,
-                spawn_speed,
-                spawn_delay,
-                spawn_angle,
-                target_distance
-            );
-        }
-    }
-
-    void run() {
-        while (window.isOpen()) {
+        int32_t total = 0;
+        solver.rope_count++;
+        const sf::Vector2f fixed_position{
+            (1.0f - spawn_position.first) * window_width,
+            (1.0f - spawn_position.second) * window_height
+        };
+        VerletObject *last_object = nullptr;
+        while (window.isOpen() && total <= length) {
             handleWindowEvents();
-            if (!spawn_queue.empty()) {
-                dequeueSpawn();
+            if (clock.getElapsedTime().asSeconds() >= spawn_delay) {
+                clock.restart();
+                spawnRopeObject(
+                    total,
+                    last_object,
+                    radius,
+                    fixed_position,
+                    total == length
+                );
+                total++;
             }
             update();
             handleRender();
         }
     }
+
+    void spawnFree(
+        int32_t count,
+        std::pair<float, float> spawn_position,
+        float spawn_speed,
+        float spawn_delay,
+        float spawn_angle
+    ) {
+        int total = 0;
+        const sf::Vector2f spawn_position_vector{
+            (1.0f - spawn_position.first) * window_width,
+            (1.0f - spawn_position.second) * window_height
+        };
+        const sf::Vector2f spawn_angle_vector{
+            cos(spawn_angle), sin(spawn_angle)
+        };
+        while (window.isOpen() && total < count) {
+            handleWindowEvents();
+            if (clock.getElapsedTime().asSeconds() >= spawn_delay) {
+                clock.restart();
+                spawnFreeObject(
+                    spawn_position_vector,
+                    spawn_angle_vector,
+                    rng.getRange(min_radius, max_radius),
+                    spawn_speed
+                );
+                total++;
+            }
+            update();
+            handleRender();
+        }
+    }
+
+    void idle() {
+        while (window.isOpen()) {
+            handleWindowEvents();
+            update();
+            handleRender();
+        }
+    }
+
 private:
     bool render_display;
     int32_t window_width;
     int32_t window_height;
     float min_radius;
     float max_radius;
-    float max_angle;
     int8_t collision_resolver;
     sf::RenderWindow window;
     tp::ThreadPool thread_pool;
@@ -120,11 +138,9 @@ private:
     Renderer renderer;
     sf::Clock clock;
     RNG<float> rng;
-    VerletObject *last_added{nullptr};
-    VerletObject *last_constrained{nullptr};
-    std::queue<SpawnTask> spawn_queue;
 
-    static sf::Color getRainbowColour(float time) {
+    sf::Color getRainbowColour() {
+        const float time = solver.time;
         const float r = sin(time);
         const float g = sin(time + 0.33f * 2.0f * M_PI);
         const float b = sin(time + 0.66f * 2.0f * M_PI);
@@ -133,6 +149,36 @@ private:
             static_cast<uint8_t>(255.0f * g * g),
             static_cast<uint8_t>(255.0f * b * b)
         };
+    }
+
+    void spawnRopeObject(
+        int32_t total,
+        VerletObject *&last_object,
+        float radius,
+        sf::Vector2f fixed_position,
+        bool final
+    ) {
+        solver.rope[solver.objects.size()] = solver.rope_count - 1;
+        const sf::Vector2f spawn_position = total ?
+            last_object->curr_position + sf::Vector2f(0.0f, ROPE_SEGMENT_LENGTH + radius * final)
+            : fixed_position;
+        VerletObject &object = solver.addObject(spawn_position, radius * final, !last_object);
+        object.colour = getRainbowColour();
+        if (last_object) {
+            solver.addConstraint(*last_object, object, ROPE_SEGMENT_LENGTH);
+        }
+        last_object = &object;
+    }
+
+    void spawnFreeObject(
+        sf::Vector2f position,
+        sf::Vector2f angle,
+        float radius,
+        float speed
+    ) {
+        VerletObject &object = solver.addObject(position, radius);
+        object.colour = getRainbowColour();
+        solver.setObjectVelocity(object, speed * angle);
     }
 
     void handleWindowEvents() {
@@ -147,39 +193,6 @@ private:
                 solver.setSlowDown(sf::Keyboard::isKeyPressed(sf::Keyboard::W));
                 solver.setSlomo(sf::Keyboard::isKeyPressed(sf::Keyboard::F));
             }
-        }
-    }
-
-    void dequeueSpawn() {
-        SpawnTask current_spawn = spawn_queue.front();
-        if (clock.getElapsedTime().asSeconds() >= current_spawn.delay) {
-            clock.restart();
-            last_added = solver.addObject(
-                {
-                    current_spawn.position.first * window_width,
-                    current_spawn.position.second * window_height
-                },
-                rng.getRange(min_radius, max_radius)
-            );
-            std::cout << "hello\n";
-            const float time = solver.time;
-            const float angle = current_spawn.angle;
-            last_added->colour = getRainbowColour(time);
-            solver.setObjectVelocity(
-                last_added,
-                current_spawn.speed * sf::Vector2f{cos(angle), sin(angle)}
-            );
-            if (current_spawn.constrained && last_constrained) {
-                VerletConstraint *constraint = solver.addConstraint(
-                    last_constrained,
-                    last_added,
-                    current_spawn.target_distance
-                );
-            };
-            if (current_spawn.constrained) {
-                last_constrained = last_added;
-            }
-            spawn_queue.pop();
         }
     }
 

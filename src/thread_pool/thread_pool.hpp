@@ -69,13 +69,13 @@ namespace tp {
     struct Worker {
         uint32_t id;
         std::thread thread;
-        TaskQueue* queue;
+        TaskQueue *queue;
         bool thread_active = true;
         std::function<void()> task;
 
         Worker() = default;
 
-        Worker(TaskQueue& queue, uint32_t id)
+        Worker(TaskQueue &queue, uint32_t id)
             : queue{&queue}
             , id{id}
         {
