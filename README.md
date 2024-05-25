@@ -4,7 +4,7 @@ Deterministically resolves particle interactions using a custom-written Verlet i
 
 ## How does it work?
 
-This engine uses Verlet integration to accurately model the dynamics of rigid bodies in a closed space, including collisions.
+This engine uses Verlet integration to accurately model the dynamics of particles in a closed space, including collisions.
 
 In order to handle multithreading, a thread pool is used, parallelising the work of both the broad and narrow phases of collision resolution across worker threads.
 
@@ -133,4 +133,4 @@ As each cell has a side length of the maximum diameter, at 4 objects per cell, w
 
 ## What are the next steps?
 
-At the moment, the engine only supports rigid-body dynamics. I intend on implementing soft-body dynamics in future. Moreover, if time is available, I may extend this engine to 3D, however, this would require a complete migration from SFML to OpenGL.
+At the moment, the engine only supports particle dynamics. I intend on implementing rigid- and soft-body dynamics in future. Moreover, if time is available, I may extend this engine to 3D, however, this would require a complete migration from SFML to OpenGL.
