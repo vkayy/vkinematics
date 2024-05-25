@@ -18,7 +18,7 @@ constexpr int32_t SUBSTEPS = 8;
 
 constexpr int8_t COLLISION_RESOLVER = 0;
 
-bool GRAVITY_ON = false;
+bool GRAVITY_ON = true;
 
 const std::string NAME = "Multithreaded Physics Engine";
 
