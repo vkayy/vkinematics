@@ -52,7 +52,7 @@ int main() {
         spawn_delay,
         spawn_angle
     );
-    simulation.spawnBody(
+    simulation.spawnSoftBody(
         spawn_position,
         size,
         squish_factor
@@ -71,7 +71,7 @@ int main() {
         0.005f,
         1.0f
     );
-    simulation.spawnBody(
+    simulation.spawnSoftBody(
         {0.9, 0.8f},
         4.0f,
         0.5f

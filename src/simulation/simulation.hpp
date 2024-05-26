@@ -57,7 +57,7 @@ struct Simulation {
     {}
 
 public:
-    void spawnBody(
+    void spawnSoftBody(
         std::pair<float, float> spawn_position,
         float size_factor,
         float squish_factor
