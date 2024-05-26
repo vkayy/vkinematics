@@ -20,11 +20,10 @@ It is important to note that the resolution will only be deterministic if the mi
 
 - [x] Particles.
 - [x] Spatial partitioning.
-- [x] Multithreading (deterministic).
+- [x] Multithreading.
 - [x] Constraints.
 - [x] Ropes.
-- [ ] Rigid bodies.
-- [x] Soft bodies.
+- [x] Soft-body dynamics.
 - [ ] Three dimensions.
 
 If time is available, I _may_ extend this engine to 3D, however, this would require a complete migration from SFML to OpenGL, so is definitely a later task.
