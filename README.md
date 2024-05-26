@@ -155,6 +155,15 @@ Notice that as the number of objects increased, the efficiency increase also did
 
 As each cell has a side length of the maximum diameter, at 4 objects per cell, we have a level of clustering much less likely to be simulated -- yet, despite the unrealistic levels of clustering, we sustain a non-quadratic time complexity, illustrating the efficiency of the multithreaded algorithm from average to worst-case scenarios.
 
-## What are the next steps?
+## What is the progress plan?
 
-At the moment, the engine only supports particle dynamics. I intend on implementing rigid and soft-body dynamics in future. Moreover, if time is available, I may extend this engine to 3D, however, this would require a complete migration from SFML to OpenGL, so is definitely a later task.
+[x] Particle dynamics.
+[x] Spatial partitioning.
+[x] Multithreading (deterministic).
+[x] Constraints.
+[x] Ropes.
+[ ] Rigid-body dynamics.
+[x] Soft-body dynamics.
+[ ] Three-dimensional.
+
+If time is available, I may extend this engine to 3D, however, this would require a complete migration from SFML to OpenGL, so is definitely a later task.
