@@ -91,6 +91,11 @@ In `src/main.cpp`, there are numerous parameters that you can modify to your lik
 
 `Simulation` has some important functions you can (or should) use.
 
+`.spawnSquare(...)`: This spawns a square, taking two parameters:
+- `spawn_position`: A pair representing the relative position in the window to spawn the pivot at.
+    - A Cartesian coordinate, with both `x` and `y` between 0 and 1 (e.g., {0.2, 0.8}).
+- `side_length`: The side length of the square in pixels.
+
 `.spawnSoftBody(...)`: This spawns a soft body, taking two parameters:
 - `spawn_position`: A pair representing the relative position in the window to spawn the pivot at.
     - A Cartesian coordinate, with both `x` and `y` between 0 and 1 (e.g., {0.2, 0.8}).

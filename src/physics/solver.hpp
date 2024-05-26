@@ -48,7 +48,8 @@ public:
     std::vector<VerletObject> objects;
     std::vector<VerletConstraint> constraints;
     std::vector<VerletSpring> springs;
-    std::vector<VerletBlob> blobs;
+    std::vector<VerletSoftBody> soft_bodies;
+    std::vector<VerletSquare> squares;
     int32_t body_count = 0;
     std::unordered_map<int32_t, int32_t> body;
     float time = 0.0f;
@@ -73,12 +74,20 @@ public:
         return springs.emplace_back(object1, object2, target_distance);
     }
 
-    VerletBlob &addBlob(
+    VerletSoftBody &addSoftBody(
         std::vector<VerletObject*> vertices,
         std::vector<VerletConstraint*> segments,
         float radius
     ) {
-        return blobs.emplace_back(vertices, segments, radius);
+        return soft_bodies.emplace_back(vertices, segments, radius);
+    }
+
+    VerletSquare &addSquare(
+        std::vector<VerletObject*> vertices,
+        std::vector<VerletConstraint*> segments,
+        float side_length
+    ) {
+        return squares.emplace_back(vertices, segments, side_length);
     }
     
     void updateNaive() {
@@ -88,7 +97,7 @@ public:
             solveCollisionsNaive();
             updateConstraints();
             updateSprings();
-            updateBlobs();
+            updateSoftBodies();
             updateObjects(step_dt);
         }
     }
@@ -101,7 +110,7 @@ public:
             solveCollisionsCellular();
             updateConstraints();
             updateSprings();
-            updateBlobs();
+            updateSoftBodies();
             updateObjects(step_dt);
         }
     }
@@ -114,7 +123,7 @@ public:
             solveCollisionsThreaded();
             updateConstraints();
             updateSprings();
-            updateBlobs();
+            updateSoftBodies();
             updateObjectsThreaded(step_dt);
         }
     }
@@ -370,11 +379,11 @@ private:
         }
     }
 
-    void updateBlobs() {
-        if (blobs.empty()) return;
+    void updateSoftBodies() {
+        if (soft_bodies.empty()) return;
         for (int i=0; i<JAKOBSEN_ITERATIONS; i++) {
-            for (auto &blob : blobs) {
-                blob.apply();
+            for (auto &soft_body : soft_bodies) {
+                soft_body.apply();
             }
         }
     }

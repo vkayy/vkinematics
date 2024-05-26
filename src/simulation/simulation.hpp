@@ -57,6 +57,71 @@ struct Simulation {
     {}
 
 public:
+    void spawnSquare(
+        std::pair<float, float> spawn_position,
+        float side_length
+    ) {
+        solver.body_count++;
+        const sf::Vector2f centre{
+            (1.0f - spawn_position.first) * window_width,
+            (1.0f - spawn_position.second) * window_height
+        };
+        int32_t side_points = side_length / DUMMY_RADIUS;
+        const int32_t segment_length = side_length / side_points;
+        std::vector<VerletObject*> vertices;
+        for (int i = 0; i < side_points; i++) {
+            solver.body[solver.objects.size()] = solver.body_count - 1;
+            sf::Vector2f position = centre + sf::Vector2f(i * segment_length - side_length / 2, -side_length / 2);
+            VerletObject &object = solver.addObject(position, DUMMY_RADIUS);
+            object.colour = getRainbowColour();
+            vertices.push_back(&object);
+        }
+        for (int i = 0; i < side_points; i++) {
+            solver.body[solver.objects.size()] = solver.body_count - 1;
+            sf::Vector2f position = centre + sf::Vector2f(side_length / 2, i * segment_length - side_length / 2);
+            VerletObject &object = solver.addObject(position, DUMMY_RADIUS);
+            object.colour = getRainbowColour();
+            vertices.push_back(&object);
+        }
+        for (int i = 0; i < side_points; i++) {
+            solver.body[solver.objects.size()] = solver.body_count - 1;
+            sf::Vector2f position = centre + sf::Vector2f(side_length / 2 - i * segment_length, side_length / 2);
+            VerletObject &object = solver.addObject(position, DUMMY_RADIUS);
+            object.colour = getRainbowColour();
+            vertices.push_back(&object);
+        }
+        for (int i = 0; i < side_points; i++) {
+            solver.body[solver.objects.size()] = solver.body_count - 1;
+            sf::Vector2f position = centre + sf::Vector2f(-side_length / 2, side_length / 2 - i * segment_length);
+            VerletObject &object = solver.addObject(position, DUMMY_RADIUS);
+            object.colour = getRainbowColour();
+            vertices.push_back(&object);
+        }
+        std::vector<VerletConstraint*> segments;
+        const int32_t points = vertices.size();
+        for (size_t i = 0; i < points; i++) {
+            VerletObject *current = vertices[i];
+            VerletObject *next = vertices[(i + 1) % points];
+            VerletConstraint &segment = solver.addConstraint(*current, *next, segment_length);
+            segments.push_back(&segment);
+            segment.in_body = true;
+        }
+        side_points = points / 4;
+        for (size_t i = 0; i < vertices.size(); i += side_points) {
+            VerletObject *current = vertices[i];
+            VerletObject *diagonal1 = vertices[(i + side_points) % points];
+            VerletObject *diagonal2 = vertices[(i + 2 * side_points) % points];
+            VerletConstraint &segment1 = solver.addConstraint(*current, *diagonal1, side_length);
+            VerletConstraint &segment2 = solver.addConstraint(*current, *diagonal2, sqrt(2) * side_length);
+            segments.push_back(&segment1);
+            segments.push_back(&segment2);
+            segment1.in_body = true;
+            segment2.in_body = true;
+        }
+        solver.addSquare(vertices, segments, side_length);
+        update();
+        handleRender();
+    }
     void spawnSoftBody(
         std::pair<float, float> spawn_position,
         float size_factor,
@@ -76,7 +141,7 @@ public:
         std::vector<VerletObject*> vertices;
         vertices.reserve(points);
         for (int32_t i=0; i<points; i++) {
-            float angle = angle_step * i;
+            const float angle = angle_step * i;
             sf::Vector2f position = centre + sf::Vector2f(cos(angle), sin(angle));
             solver.body[solver.objects.size()] = solver.body_count - 1;
             VerletObject &object = solver.addObject(position, DUMMY_RADIUS);
@@ -92,7 +157,7 @@ public:
             segments.push_back(&segment);
             segment.in_body = true;
         }
-        solver.addBlob(vertices, segments, radius);
+        solver.addSoftBody(vertices, segments, radius);
         update();
         handleRender();
     }

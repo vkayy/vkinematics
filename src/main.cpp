@@ -57,6 +57,10 @@ int main() {
         size,
         squish_factor
     )
+    simulation.spawnSquare(
+        spawn_positin,
+        side_length
+    )
     */
     simulation.spawnRope(
         20,
@@ -75,6 +79,19 @@ int main() {
         {0.9, 0.8f},
         4.0f,
         0.5f
+    );
+    simulation.spawnSquare(
+        {0.1, 0.3f},
+        40.0f
+    );
+    simulation.spawnSoftBody(
+        {0.9, 0.8f},
+        8.0f,
+        0.2f
+    );
+    simulation.spawnSquare(
+        {0.1, 0.8f},
+        100.0f
     );
     simulation.spawnRope(
         20,

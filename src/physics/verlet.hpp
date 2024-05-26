@@ -142,13 +142,13 @@ struct VerletSpring {
 
 float calculatePolygonArea(std::vector<VerletObject*> &vertices);
 
-struct VerletBlob {
+struct VerletSoftBody {
     std::vector<VerletObject*> vertices;
     std::vector<VerletConstraint*> segments;
     int32_t points;
     float desired_area;
 
-    VerletBlob(
+    VerletSoftBody(
         std::vector<VerletObject*> vertices,
         std::vector<VerletConstraint*> segments,
         float radius
@@ -174,5 +174,24 @@ struct VerletBlob {
             normal /= sqrt(normal.x * normal.x + normal.y * normal.y);
             vertices[i]->curr_position += 0.01f * normal * delta;
         }
+    }
+};
+
+struct VerletSquare {
+    std::vector<VerletObject*> vertices;
+    std::vector<VerletConstraint*> segments;
+    float side_length;
+    int32_t points;
+
+    VerletSquare(
+        std::vector<VerletObject*> vertices,
+        std::vector<VerletConstraint*> segments,
+        float side_length
+    )
+    : vertices{vertices}
+    , segments{segments}
+    , side_length{side_length}
+    {
+        points = vertices.size();
     }
 };
