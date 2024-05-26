@@ -73,7 +73,9 @@ In `src/main.cpp`, there are numerous parameters that you can modify to your lik
     - Any other (invalid) option will default to multithreading.
 - `GRAVITY_ON`: If true, objects are affected by gravity. Otherwise, they are not.
 
-Next, the simulation has some important functions you can use.
+## What are the simulation functions?
+
+The simulation `struct` has some important functions you can use.
 
 `.spawnBlob(...)`: This spawns a squishy blob, taking two parameters:
 - `spawn_position`: A pair representing the relative position in the window to spawn the pivot at.
