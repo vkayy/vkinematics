@@ -2,6 +2,8 @@
 
 Deterministically resolves particle interactions using a custom-written Verlet integration library, optimised with spatial partitioning and multithreading.
 
+<img src="https://github.com/vkayy/multithreaded-physics-engine/blob/main/simulation-example.gif" width="100%" height="100%"/>
+
 ## How does it work?
 
 This engine uses Verlet integration to accurately model the dynamics of particles in a closed space, including collisions.
