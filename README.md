@@ -2,8 +2,6 @@
 
 This is a physics engine that can deterministically resolve particle interactions using a custom-written Verlet integration library, optimised with spatial partitioning and multithreading.
 
-<img src="https://github.com/vkayy/multithreaded-physics-engine/blob/main/simulation-example.gif" width="100%" height="100%"/>
-<img src="https://github.com/vkayy/multithreaded-physics-engine/blob/main/simulation-example2.gif" width="100%" height="100%"/>
 <img src="https://github.com/vkayy/multithreaded-physics-engine/blob/main/simulation-example3.gif" width="100%" height="100%"/>
 
 ## How does it work?
