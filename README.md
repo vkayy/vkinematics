@@ -90,7 +90,7 @@ In `src/main.cpp`, there are numerous parameters that you can modify to your lik
 
 ## What are the simulation functions?
 
-The simulation `struct` has some important functions you can use.
+`Simulation` has some important functions you can (or should) use.
 
 `.spawnBlob(...)`: This spawns a squishy blob, taking two parameters:
 - `spawn_position`: A pair representing the relative position in the window to spawn the pivot at.
