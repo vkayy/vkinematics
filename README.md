@@ -16,6 +16,19 @@ The linear structure of a uniform collision grid enables both O(1) lookup and an
 
 It is important to note that the resolution will only be deterministic if the minimum and maximum radii of objects used in the simulation are the same. This is because a random number generator is used to seed the radii of objects spawned when a range is given.
 
+## What is the progress plan?
+
+- [x] Particles.
+- [x] Spatial partitioning.
+- [x] Multithreading (deterministic).
+- [x] Constraints.
+- [x] Ropes.
+- [ ] Rigid bodies.
+- [x] Soft bodies.
+- [ ] Three dimensions.
+
+If time is available, I _may_ extend this engine to 3D, however, this would require a complete migration from SFML to OpenGL, so is definitely a later task.
+
 ## How do I use this?
 
 First of all, for the sake of visualisation, SFML has to be locally installed.
@@ -154,16 +167,3 @@ The next benchmark runs 1406 objects of diameter 20 on a 750 x 750 window: (750 
 Notice that as the number of objects increased, the efficiency increase also did -- this is, again, because the multithreaded algorithm has a better time complexity than the brute-force algorithm. Moreover, as we increase from 10,000 to 40,000 objects of radius 10 in a 2000 x 2000 window (from 1 to 4 objects per cell), we still retain a loglinear worst case (you can try running these benchmarks yourself locally).
 
 As each cell has a side length of the maximum diameter, at 4 objects per cell, we have a level of clustering much less likely to be simulated -- yet, despite the unrealistic levels of clustering, we sustain a non-quadratic time complexity, illustrating the efficiency of the multithreaded algorithm from average to worst-case scenarios.
-
-## What is the progress plan?
-
-- [x] Particles.
-- [x] Spatial partitioning.
-- [x] Multithreading (deterministic).
-- [x] Constraints.
-- [x] Ropes.
-- [ ] Rigid bodies.
-- [x] Soft bodies.
-- [ ] Three dimensions.
-
-If time is available, I _may_ extend this engine to 3D, however, this would require a complete migration from SFML to OpenGL, so is definitely a later task.
