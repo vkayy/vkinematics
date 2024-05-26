@@ -157,13 +157,13 @@ As each cell has a side length of the maximum diameter, at 4 objects per cell, w
 
 ## What is the progress plan?
 
-[x] Particle dynamics.
-[x] Spatial partitioning.
-[x] Multithreading (deterministic).
-[x] Constraints.
-[x] Ropes.
-[ ] Rigid-body dynamics.
-[x] Soft-body dynamics.
-[ ] Three-dimensional.
+- [x] Particles.
+- [x] Spatial partitioning.
+- [x] Multithreading (deterministic).
+- [x] Constraints.
+- [x] Ropes.
+- [ ] Rigid bodies.
+- [x] Soft bodies.
+- [ ] Three dimensions.
 
-If time is available, I may extend this engine to 3D, however, this would require a complete migration from SFML to OpenGL, so is definitely a later task.
+If time is available, I _may_ extend this engine to 3D, however, this would require a complete migration from SFML to OpenGL, so is definitely a later task.
