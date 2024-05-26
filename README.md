@@ -23,6 +23,7 @@ It is important to note that the resolution will only be deterministic if the mi
 - [x] Multithreading.
 - [x] Constraints.
 - [x] Ropes.
+- [x] Rigid-body dynamics. 
 - [x] Soft-body dynamics.
 - [ ] Three dimensions.
 
