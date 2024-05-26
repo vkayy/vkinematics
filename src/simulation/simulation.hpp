@@ -35,10 +35,12 @@ struct Simulation {
     , max_radius{max_radius}
     , collision_resolver{collision_resolver}
     , thread_pool{tp::ThreadPool(thread_count)}
+    , settings{settings.antialiasingLevel = 4}
     , window{
         sf::VideoMode(window_width, window_height),
         name,
         sf::Style::Default,
+        settings
     }
     , solver{
         sf::Vector2f(window_width, window_height),
@@ -55,19 +57,21 @@ struct Simulation {
     {}
 
 public:
-    void spawnBlob(
+    void spawnBody(
         std::pair<float, float> spawn_position,
-        float radius
+        float size_factor,
+        float squish_factor
     ) {
         solver.body_count++;
         const sf::Vector2f centre{
             (1.0f - spawn_position.first) * window_width,
             (1.0f - spawn_position.second) * window_height
         };
+        const int32_t radius = 8.0f * size_factor + 22.0f;
         const int32_t points = radius;
         const float angle_step = 360.0f / points;
         float circumference = 2 * M_PI * radius;
-        float length = circumference * 1.15f / points;
+        float length = circumference * (1.0f + squish_factor * 0.3f) / points;
 
         std::vector<VerletObject*> vertices;
         vertices.reserve(points);
@@ -171,6 +175,7 @@ private:
     float min_radius;
     float max_radius;
     int8_t collision_resolver;
+    sf::ContextSettings settings;
     sf::RenderWindow window;
     tp::ThreadPool thread_pool;
     Solver solver;

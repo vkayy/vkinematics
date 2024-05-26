@@ -16,6 +16,7 @@ public:
         sf::CircleShape circle{1.0f};
         circle.setPointCount(32);
         circle.setOrigin(1.0f, 1.0f);
+        int32_t object_id = 0;
         const auto &objects = solver.objects;
         for (const auto &object : objects) {
             if (object.hidden) continue;
@@ -25,6 +26,7 @@ public:
             circle.setOutlineColor(sf::Color::Black);
             circle.setOutlineThickness(-OUTLINE_THICKNESS / object.radius);
             target.draw(circle);
+            object_id++;
         }
 
         sf::Vertex constraint_line[2];

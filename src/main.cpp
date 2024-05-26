@@ -14,9 +14,9 @@ constexpr bool SPEED_COLOURING = true;
 constexpr int32_t MAX_OBJECT_COUNT = 10000;
 constexpr int32_t FRAMERATE_LIMIT = 60;
 constexpr int32_t THREAD_COUNT = 3;
-constexpr int32_t SUBSTEPS = 16;
+constexpr int32_t SUBSTEPS = 8;
 
-constexpr int8_t COLLISION_RESOLVER = 1;
+constexpr int8_t COLLISION_RESOLVER = 0;
 
 bool GRAVITY_ON = true;
 
@@ -52,9 +52,10 @@ int main() {
         spawn_delay,
         spawn_angle
     );
-    simulation.spawnBlob(
+    simulation.spawnBody(
         spawn_position,
-        radius
+        size,
+        squish_factor
     )
     */
     simulation.spawnRope(
@@ -64,19 +65,16 @@ int main() {
         10.0f
     );
     simulation.spawnFree(
-        50,
+        10,
         {0.5f, 0.5f},
         10.0f,
         0.005f,
         1.0f
     );
-    simulation.spawnBlob(
+    simulation.spawnBody(
         {0.9, 0.8f},
-        50.0f
-    );
-    simulation.spawnBlob(
-        {0.1, 0.8f},
-        50.0f
+        4.0f,
+        0.5f
     );
     simulation.spawnRope(
         20,

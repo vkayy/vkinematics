@@ -2,7 +2,7 @@
 
 This is a physics engine that can deterministically resolve particle interactions using a custom-written Verlet integration library, optimised with spatial partitioning and multithreading.
 
-<img src="https://github.com/vkayy/multithreaded-physics-engine/blob/main/simulation-example.gif" width="100%" height="100%"/>
+<img src="https://github.com/vkayy/multithreaded-physics-engine/blob/main/simulation-example2.gif" width="100%" height="100%"/>
 
 ## How does it work?
 
@@ -91,10 +91,11 @@ In `src/main.cpp`, there are numerous parameters that you can modify to your lik
 
 `Simulation` has some important functions you can (or should) use.
 
-`.spawnBlob(...)`: This spawns a squishy blob, taking two parameters:
+`.spawnBody(...)`: This spawns a body, taking two parameters:
 - `spawn_position`: A pair representing the relative position in the window to spawn the pivot at.
     - A Cartesian coordinate, with both `x` and `y` between 0 and 1 (e.g., {0.2, 0.8}).
-- `radius`: The 'radius' of the blob if it were expanded to a circle.
+- `size_factor`: The size factor of the body from 1.0 upwards (note that larger bodies are more intensive).
+- `squish_factor`: The squish factor of the body from 0.0 to 1.0 (0.0 is the least squishy, etc.).
 
 `.spawnRope(...)`: This spawns a rope with an object at the end, taking four parameters:
 - `length`: The number of segments on the rope (each segment is 5 pixels long).

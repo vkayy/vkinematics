@@ -6,6 +6,7 @@
 
 constexpr float DEFAULT_RADIUS = 10.0f;
 constexpr float COLOUR_COEFFICIENT = 0.0015f;
+constexpr float DAMPING_FACTOR = 0.9999f;
 
 struct VerletObject {
     sf::Vector2f curr_position = {0.0f, 0.0f};
@@ -26,7 +27,7 @@ struct VerletObject {
     {}
 
     void updatePosition(float dt) {
-        const sf::Vector2f displacement = curr_position - last_position;
+        const sf::Vector2f displacement = (curr_position - last_position) * DAMPING_FACTOR;
         last_position = curr_position;
         curr_position = curr_position + displacement + acceleration * dt * dt;
         acceleration = {};
