@@ -95,7 +95,7 @@ In `src/main.cpp`, there are numerous parameters that you can modify to your lik
 - `spawn_position`: A pair representing the relative position in the window to spawn the pivot at.
     - A Cartesian coordinate, with both `x` and `y` between 0 and 1 (e.g., {0.2, 0.8}).
 - `size_factor`: The size factor of the body from 1.0 upwards (note that larger bodies are more intensive).
-- `squish_factor`: The squish factor of the body from 0.0 to 1.0 (0.0 is the least squishy, etc.).
+- `squish_factor`: The squish factor of the body from 0.0 to 1.0 (0.0 is the least squishy, whilst 1.0 is the most).
 
 `.spawnRope(...)`: This spawns a rope with an object at the end, taking four parameters:
 - `length`: The number of segments on the rope (each segment is 5 pixels long).
