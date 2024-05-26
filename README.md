@@ -92,10 +92,12 @@ In `src/main.cpp`, there are numerous parameters that you can modify to your lik
 
 `Simulation` has some important functions you can (or should) use.
 
+
 `.spawnSquare(...)`: This spawns a square, taking two parameters:
 - `spawn_position`: A pair representing the relative position in the window to spawn the pivot at.
     - A Cartesian coordinate, with both `x` and `y` between 0 and 1 (e.g., {0.2, 0.8}).
 - `side_length`: The side length of the square in pixels.
+
 
 `.spawnSoftBody(...)`: This spawns a soft body, taking two parameters:
 - `spawn_position`: A pair representing the relative position in the window to spawn the pivot at.
@@ -103,12 +105,14 @@ In `src/main.cpp`, there are numerous parameters that you can modify to your lik
 - `size_factor`: The size factor of the body from 1.0 upwards (note that larger bodies are more intensive).
 - `squish_factor`: The squish factor of the body from 0.0 to 1.0 (0.0 is the least squishy, whilst 1.0 is the most).
 
+
 `.spawnRope(...)`: This spawns a rope with an particle at the end, taking four parameters:
 - `length`: The number of segments on the rope (each segment is 5 pixels long).
 - `spawn_position`: A pair representing the relative position in the window to spawn the pivot at.
     - A Cartesian coordinate, with both `x` and `y` between 0 and 1 (e.g., {0.2, 0.8}).
 - `spawn_delay`: The delay between each particle spawning.
 - `radius`: The radius of the particle at the end.
+
 
 `.spawnFree(...)`: This spawns a number of free partciles, taking five parameters:
 - `count`: The number of particles to spawn.
