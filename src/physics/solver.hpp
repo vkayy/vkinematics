@@ -11,10 +11,10 @@
 #include "../thread_pool/thread_pool.hpp"
 
 constexpr int DEFAULT_SUBSTEPS = 8;
-constexpr int JAKOBSEN_ITERATIONS = 8;
+constexpr int JAKOBSEN_ITERATIONS = 10;
 constexpr float MARGIN_WIDTH = 2.0f;
 constexpr float GRAVITY_CONST = 1000.0f;
-constexpr float RESPONSE_COEF = 1.0f;
+constexpr float RESPONSE_COEF = 0.5f;
 constexpr float ATTRACTOR_STRENGTH = 2000.0f;
 constexpr float REPELLER_STRENGTH = 2000.0f;
 
@@ -41,12 +41,16 @@ struct Solver {
     {
         grid.clear();
         objects.reserve(max_object_count);
+        constraints.reserve(max_object_count);
+        springs.reserve(max_object_count);
     }
 public:
     std::vector<VerletObject> objects;
     std::vector<VerletConstraint> constraints;
-    int32_t rope_count = 0;
-    std::unordered_map<int32_t, int32_t> rope;
+    std::vector<VerletSpring> springs;
+    std::vector<VerletBlob> blobs;
+    int32_t body_count = 0;
+    std::unordered_map<int32_t, int32_t> body;
     float time = 0.0f;
 
     VerletObject &addObject(sf::Vector2f position, float radius, bool fixed = false) {
@@ -60,6 +64,22 @@ public:
     ) {
         return constraints.emplace_back(object1, object2, target_distance);
     }
+
+    VerletSpring &addSpring(
+        VerletObject &object1,
+        VerletObject &object2,
+        float target_distance
+    ) {
+        return springs.emplace_back(object1, object2, target_distance);
+    }
+
+    VerletBlob &addBlob(
+        std::vector<VerletObject*> vertices,
+        std::vector<VerletConstraint*> segments,
+        float radius
+    ) {
+        return blobs.emplace_back(vertices, segments, radius);
+    }
     
     void updateNaive() {
         time += frame_dt;
@@ -67,6 +87,8 @@ public:
         for (int i=0; i<substeps; i++) {
             solveCollisionsNaive();
             updateConstraints();
+            updateSprings();
+            updateBlobs();
             updateObjects(step_dt);
         }
     }
@@ -76,9 +98,11 @@ public:
         const float step_dt = getStepDt();
         for (int i=0; i<substeps; i++) {
             addObjectsToGrid();
-            updateConstraints();
-            updateObjects(step_dt);
             solveCollisionsCellular();
+            updateConstraints();
+            updateSprings();
+            updateBlobs();
+            updateObjects(step_dt);
         }
     }
 
@@ -89,6 +113,8 @@ public:
             addObjectsToGrid();
             solveCollisionsThreaded();
             updateConstraints();
+            updateSprings();
+            updateBlobs();
             updateObjectsThreaded(step_dt);
         }
     }
@@ -215,8 +241,8 @@ private:
     }
 
     void solveCollision(int32_t object_id1, int32_t object_id2) {
-        if (rope.count(object_id1) && rope.count(object_id2)) {
-            if (rope[object_id1] == rope[object_id2]) return;
+        if (body.count(object_id1) && body.count(object_id2)) {
+            if (body[object_id1] == body[object_id2]) return;
         }
         VerletObject &object1 = objects[object_id1];
         VerletObject &object2 = objects[object_id2];
@@ -225,22 +251,23 @@ private:
         const float square_distance = displacement.x * displacement.x + displacement.y * displacement.y;
         const float min_distance = object1.radius + object2.radius;
         if (square_distance < min_distance * min_distance) {
-            const float mass_proportion1 = object1.radius * object1.radius * object1.radius;
-            const float mass_proportion2 = object2.radius * object2.radius * object2.radius;
+            const float radius1 = body.count(object_id1) ? 20.0f : object1.radius;
+            const float radius2 = body.count(object_id2) ? 20.0f : object2.radius;
+            const float mass_proportion1 = radius1 * radius1 * radius1;
+            const float mass_proportion2 = radius2 * radius2 * radius2;
             const float total_mass_proportion = mass_proportion1 + mass_proportion2;
             const float distance = sqrt(square_distance);
             const sf::Vector2f collision_normal = displacement / distance;
             const float collision_ratio1 = mass_proportion2 / total_mass_proportion;
             const float collision_ratio2 = mass_proportion1 / total_mass_proportion;
-
             const float delta = RESPONSE_COEF * (distance - min_distance);
             if (!object1.fixed && !object2.fixed) {
                 object1.curr_position -= 0.5f * collision_normal * (collision_ratio1 * delta);
                 object2.curr_position += 0.5f * collision_normal * (collision_ratio2 * delta);
             } else if (object1.fixed && !object2.fixed) {
-                object2.curr_position -= collision_normal * (collision_ratio1 * delta);
+                object2.curr_position += collision_normal * (collision_ratio1 * delta);
             } else {
-                object1.curr_position += collision_normal * (collision_ratio2 * delta);
+                object1.curr_position -= collision_normal * (collision_ratio2 * delta);
             }
         }
     }
@@ -254,14 +281,14 @@ private:
     }
 
     void solveObjectCellCollisions(uint32_t object_id, const CollisionCell &cell) {
-        for (uint32_t i=0; i<cell.object_count; i++) {
+        for (int32_t i=0; i<cell.object_count; i++) {
             if (object_id != cell.objects[i]) {
                 solveCollision(object_id, cell.objects[i]);
             }
         }
     }
 
-    void processCell(const CollisionCell &cell, uint32_t index) {
+    void processCell(const CollisionCell &cell, int32_t index) {
         const int32_t x = index / grid.height;
         const int32_t y = index % grid.height;
         for (const auto &object_id : cell.objects) {
@@ -330,6 +357,24 @@ private:
         for (int i=0; i<JAKOBSEN_ITERATIONS; i++) {
             for (auto &constraint : constraints) {
                 constraint.apply();
+            }
+        }
+    }
+
+    void updateSprings() {
+        if (springs.empty()) return;
+        for (int i=0; i<JAKOBSEN_ITERATIONS; i++) {
+            for (auto &spring : springs) {
+                spring.apply();
+            }
+        }
+    }
+
+    void updateBlobs() {
+        if (blobs.empty()) return;
+        for (int i=0; i<JAKOBSEN_ITERATIONS; i++) {
+            for (auto &blob : blobs) {
+                blob.apply();
             }
         }
     }

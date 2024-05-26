@@ -75,14 +75,19 @@ In `src/main.cpp`, there are numerous parameters that you can modify to your lik
 
 Next, the simulation has some important functions you can use.
 
-`.spawnRope()`: This spawns a rope with an object at the end, taking four parameters:
+`.spawnBlob(...)`: This spawns a squishy blob, taking two parameters:
+- `spawn_position`: A pair representing the relative position in the window to spawn the pivot at.
+    - A Cartesian coordinate, with both `x` and `y` between 0 and 1 (e.g., {0.2, 0.8}).
+- `radius`: The 'radius' of the blob if it were expanded to a circle.
+
+`.spawnRope(...)`: This spawns a rope with an object at the end, taking four parameters:
 - `length`: The number of segments on the rope (each segment is 5 pixels long).
 - `spawn_position`: A pair representing the relative position in the window to spawn the pivot at.
     - A Cartesian coordinate, with both `x` and `y` between 0 and 1 (e.g., {0.2, 0.8}).
 - `spawn_delay`: The delay between each particle spawning.
 - `radius`: The radius of the object at the end.
 
-`.spawnFree()`: This spawns a number of free partciles, taking five parameters:
+`.spawnFree(...)`: This spawns a number of free partciles, taking five parameters:
 - `count`: The number of particles to spawn.
 - `spawn_position`: A pair representing the relative position in the window to spawn the pivot at.
     - A Cartesian coordinate, with both `x` and `y` between 0 and 1 (e.g., {0.2, 0.8}).

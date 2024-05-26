@@ -6,17 +6,17 @@ constexpr bool RENDER_DISPLAY = true;
 constexpr int32_t WINDOW_WIDTH = 1500;
 constexpr int32_t WINDOW_HEIGHT = 1000;
 
-constexpr float MIN_RADIUS = 5.0f;
-constexpr float MAX_RADIUS = 15.0f;
+constexpr float MIN_RADIUS = 10.0f;
+constexpr float MAX_RADIUS = 10.0f;
 
 constexpr bool SPEED_COLOURING = true;
 
 constexpr int32_t MAX_OBJECT_COUNT = 10000;
 constexpr int32_t FRAMERATE_LIMIT = 60;
 constexpr int32_t THREAD_COUNT = 3;
-constexpr int32_t SUBSTEPS = 8;
+constexpr int32_t SUBSTEPS = 16;
 
-constexpr int8_t COLLISION_RESOLVER = 0;
+constexpr int8_t COLLISION_RESOLVER = 1;
 
 bool GRAVITY_ON = true;
 
@@ -52,22 +52,34 @@ int main() {
         spawn_delay,
         spawn_angle
     );
+    simulation.spawnBlob(
+        spawn_position,
+        radius
+    )
     */
     simulation.spawnRope(
-        50,
+        20,
         {0.2f, 0.6f},
         0.005f,
         10.0f
     );
     simulation.spawnFree(
-        200,
+        50,
         {0.5f, 0.5f},
         10.0f,
         0.005f,
         1.0f
     );
+    simulation.spawnBlob(
+        {0.9, 0.8f},
+        50.0f
+    );
+    simulation.spawnBlob(
+        {0.1, 0.8f},
+        50.0f
+    );
     simulation.spawnRope(
-        50,
+        20,
         {0.8f, 0.6f},
         0.005f,
         10.0f

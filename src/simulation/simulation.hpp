@@ -10,6 +10,7 @@
 #include "../thread_pool/thread_pool.hpp"
 
 constexpr float ROPE_SEGMENT_LENGTH = 10.0f;
+constexpr float DUMMY_RADIUS = 8.0f;
 
 struct Simulation {
     Simulation(
@@ -54,6 +55,44 @@ struct Simulation {
     {}
 
 public:
+    void spawnBlob(
+        std::pair<float, float> spawn_position,
+        float radius
+    ) {
+        solver.body_count++;
+        const sf::Vector2f centre{
+            (1.0f - spawn_position.first) * window_width,
+            (1.0f - spawn_position.second) * window_height
+        };
+        const int32_t points = radius;
+        const float angle_step = 360.0f / points;
+        float circumference = 2 * M_PI * radius;
+        float length = circumference * 1.15f / points;
+
+        std::vector<VerletObject*> vertices;
+        vertices.reserve(points);
+        for (int32_t i=0; i<points; i++) {
+            float angle = angle_step * i;
+            sf::Vector2f position = centre + sf::Vector2f(cos(angle), sin(angle));
+            solver.body[solver.objects.size()] = solver.body_count - 1;
+            VerletObject &object = solver.addObject(position, DUMMY_RADIUS);
+            object.colour = getRainbowColour();
+            vertices.push_back(&object);
+        }
+
+        std::vector<VerletConstraint*> segments;
+        for (int32_t i=0; i<points; i++) {
+            VerletObject *current = vertices[i];
+            VerletObject *next = vertices[(i + 1) % points];
+            VerletConstraint &segment = solver.addConstraint(*current, *next, length);
+            segments.push_back(&segment);
+            segment.in_body = true;
+        }
+        solver.addBlob(vertices, segments, radius);
+        update();
+        handleRender();
+    }
+
     void spawnRope(
         int32_t length,
         std::pair<float, float> spawn_position,
@@ -61,7 +100,7 @@ public:
         float radius
     ) {
         int32_t total = 0;
-        solver.rope_count++;
+        solver.body_count++;
         const sf::Vector2f fixed_position{
             (1.0f - spawn_position.first) * window_width,
             (1.0f - spawn_position.second) * window_height
@@ -156,16 +195,17 @@ private:
         VerletObject *&last_object,
         float radius,
         sf::Vector2f fixed_position,
-        bool final
+        bool is_final
     ) {
-        solver.rope[solver.objects.size()] = solver.rope_count - 1;
+        solver.body[solver.objects.size()] = solver.body_count - 1;
         const sf::Vector2f spawn_position = total ?
-            last_object->curr_position + sf::Vector2f(0.0f, ROPE_SEGMENT_LENGTH + radius * final)
+            last_object->curr_position + sf::Vector2f(0.0f, ROPE_SEGMENT_LENGTH + (is_final ? radius : DUMMY_RADIUS))
             : fixed_position;
-        VerletObject &object = solver.addObject(spawn_position, radius * final, !last_object);
+        VerletObject &object = solver.addObject(spawn_position, (is_final ? radius : DUMMY_RADIUS), !last_object);
         object.colour = getRainbowColour();
         if (last_object) {
-            solver.addConstraint(*last_object, object, ROPE_SEGMENT_LENGTH);
+            VerletConstraint &constraint = solver.addConstraint(*last_object, object, ROPE_SEGMENT_LENGTH);
+            constraint.in_body = true;
         }
         last_object = &object;
     }
