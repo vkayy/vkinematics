@@ -26,8 +26,8 @@ struct Simulation {
         solver{sf::Vector2f(window_width, window_height),
                substeps,
                collision_resolver == 2 &&
-                       window_width / 2 / max_radius / thread_count < 2
-                   ? window_width / thread_count / 2
+                       window_width / 2.0f / max_radius / thread_count < 2
+                   ? window_width / thread_count / 2.0f
                    : max_radius * 2,
                max_object_count,
                framerate_limit,
