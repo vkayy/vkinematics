@@ -6,15 +6,15 @@ This is a physics engine that can deterministically resolve particle interaction
 
 ## How does it work?
 
-This engine uses Verlet integration to accurately model the dynamics of particles in a closed space, including collisions.
+This engine uses Verlet integration to model the dynamics of bodies in a closed space, including collisions.
 
 In order to handle multithreading, a thread pool is used, parallelising the work of both the broad and narrow phases of collision resolution across worker threads.
 
-Currently, the broad phase involves spatial partitioning of objects in a uniform collision grid, whilst the narrow phase involves generic elastic collisions.
+Currently, the broad phase involves spatial partitioning of particles in a uniform collision grid, whilst the narrow phase involves generic elastic collisions.
 
 The linear structure of a uniform collision grid enables both O(1) lookup and an elegant means of multithreading in contrast to the non-linear quadtree or circle tree structures, hence the design choice in this engine.
 
-It is important to note that the resolution will only be deterministic if the minimum and maximum radii of objects used in the simulation are the same. This is because a random number generator is used to seed the radii of objects spawned when a range is given.
+It is important to note that the resolution will only be deterministic if the minimum and maximum radii of particles used in the simulation are the same. This is because a random number generator is used to seed the radii of particles spawned when a range is given.
 
 ## What is the progress plan?
 
@@ -61,9 +61,9 @@ Attractor: Holding `A` activates an attractor in the centre of the window.
 
 Repeller: Holding `R` activates a repeller in the centre of the window.
 
-Speed-up: Holding `S` increasingly speeds up each object.
+Speed-up: Holding `S` increasingly speeds up each particle.
 
-Slow-down: Holding `W` increasingly slows down each object.
+Slow-down: Holding `W` increasingly slows down each particle.
 
 Slo-mo: Holding `F` slows the simulation down to a near stop, and reverts speed to normal when released.
 
@@ -75,10 +75,10 @@ In `src/main.cpp`, there are numerous parameters that you can modify to your lik
 - `RENDER_DISPLAY`: If true, the simulation is displayed. Otherwise, it is not.
 - `WINDOW_WIDTH`: The width of the window.
 - `WINDOW_HEIGHT`: the width of the window.
-- `MIN_RADIUS`: The minimum object radius.
-- `MAX_RADIUS`: The maximum object radius.
-- `SPEED_COLOURING`: If true, objects are coloured based on speed. By default, they are coloured by rainbow.
-- `MAX_OBJECT_COUNT`: The maximum number of objects you can spawn.
+- `MIN_RADIUS`: The minimum particle radius.
+- `MAX_RADIUS`: The maximum particle radius.
+- `SPEED_COLOURING`: If true, particles are coloured based on speed. By default, they are coloured by rainbow.
+- `MAX_OBJECT_COUNT`: The maximum number of particles you can spawn.
 - `FRAMERATE_LIMIT`: The maximum framerate.
 - `THREAD_COUNT`: The number of threads used (experiment with this, see what works best for you).
 - `COLLISION_RESOLVER`: Three choices are available:
@@ -86,16 +86,18 @@ In `src/main.cpp`, there are numerous parameters that you can modify to your lik
     - `1`: Single-threaded and optimised with uniform collision grid spatial partitioning.
     - `2`: Single-threaded and brute force collision resolution.
     - Any other (invalid) option will default to multithreading.
-- `GRAVITY_ON`: If true, objects are affected by gravity. Otherwise, they are not.
+- `GRAVITY_ON`: If true, particles are affected by gravity. Otherwise, they are not.
 
 ## What are the simulation functions?
 
 `Simulation` has some important functions you can (or should) use.
 
+
 `.spawnSquare(...)`: This spawns a square, taking two parameters:
 - `spawn_position`: A pair representing the relative position in the window to spawn the pivot at.
     - A Cartesian coordinate, with both `x` and `y` between 0 and 1 (e.g., {0.2, 0.8}).
 - `side_length`: The side length of the square in pixels.
+
 
 `.spawnSoftBody(...)`: This spawns a soft body, taking two parameters:
 - `spawn_position`: A pair representing the relative position in the window to spawn the pivot at.
@@ -103,12 +105,14 @@ In `src/main.cpp`, there are numerous parameters that you can modify to your lik
 - `size_factor`: The size factor of the body from 1.0 upwards (note that larger bodies are more intensive).
 - `squish_factor`: The squish factor of the body from 0.0 to 1.0 (0.0 is the least squishy, whilst 1.0 is the most).
 
-`.spawnRope(...)`: This spawns a rope with an object at the end, taking four parameters:
+
+`.spawnRope(...)`: This spawns a rope with an particle at the end, taking four parameters:
 - `length`: The number of segments on the rope (each segment is 5 pixels long).
 - `spawn_position`: A pair representing the relative position in the window to spawn the pivot at.
     - A Cartesian coordinate, with both `x` and `y` between 0 and 1 (e.g., {0.2, 0.8}).
 - `spawn_delay`: The delay between each particle spawning.
-- `radius`: The radius of the object at the end.
+- `radius`: The radius of the particle at the end.
+
 
 `.spawnFree(...)`: This spawns a number of free partciles, taking five parameters:
 - `count`: The number of particles to spawn.
@@ -152,9 +156,9 @@ Finally, the above runs the benchmark executable, which then causes it to output
 
 ## How do the collision resolving algorithms compare?
 
-As the brute-force algorithm is of quadratic time complexity with respect to the number of objects, its mean operation time unsurprisingly scales quadratically as the number of objects increases. On the other hand, by using spatial partitioning with some pruning, we achieve time complexity that is closer to linear, which is then improved further by a constant through multithreading.
+As the brute-force algorithm is of quadratic time complexity with respect to the number of particles, its mean operation time unsurprisingly scales quadratically as the number of particles increases. On the other hand, by using spatial partitioning with some pruning, we achieve time complexity that is closer to linear, which is then improved further by a constant through multithreading.
 
-It is important to stress that the time complexity of the spatial partitioning is closer to, but not exactly linear. As the number of objects increases with respect to the size of the window, the average number of objects per cell increases, and this means that objects are more clustered. As the spatial partitioning algorithm used sets cell size to the diameter, let us consider a worst-case scenario where all cells are filled.
+It is important to stress that the time complexity of the spatial partitioning is closer to, but not exactly linear. As the number of particles increases with respect to the size of the window, the average number of particles per cell increases, and this means that particles are more clustered. As the spatial partitioning algorithm used sets cell size to the diameter, let us consider a worst-case scenario where all cells are filled.
 
 ```
                          BENCHMARK                                    TIME
@@ -166,10 +170,10 @@ resolver_multithreaded_objects/100/0/6/0/0/1406/5/process_time     489554195 ns
 ```
 These benchmarks have been run with no compiler optimisations in contrast to the commands above.
 
-The first benchmark runs 625 objects of diameter 20 on a 500 x 500 window: (500 columns / 20 diameter)^2 = 625 cells. The multithreaded algorithm's runtime is approximately 95% faster.
+The first benchmark runs 625 particles of diameter 20 on a 500 x 500 window: (500 columns / 20 diameter)^2 = 625 cells. The multithreaded algorithm's runtime is approximately 95% faster.
 
-The next benchmark runs 1406 objects of diameter 20 on a 750 x 750 window: (750 columns / 20 diameter)^2 = 1406.25 cells. The multithreaded algorithm's runtime is approximately 98% faster.
+The next benchmark runs 1406 particles of diameter 20 on a 750 x 750 window: (750 columns / 20 diameter)^2 = 1406.25 cells. The multithreaded algorithm's runtime is approximately 98% faster.
 
-Notice that as the number of objects increased, the efficiency increase also did -- this is, again, because the multithreaded algorithm has a better time complexity than the brute-force algorithm. Moreover, as we increase from 10,000 to 40,000 objects of radius 10 in a 2000 x 2000 window (from 1 to 4 objects per cell), we still retain a loglinear worst case (you can try running these benchmarks yourself locally).
+Notice that as the number of particles increased, the efficiency increase also did -- this is, again, because the multithreaded algorithm has a better time complexity than the brute-force algorithm. Moreover, as we increase from 10,000 to 40,000 particles of radius 10 in a 2000 x 2000 window (from 1 to 4 particles per cell), we still retain a loglinear worst case (you can try running these benchmarks yourself locally).
 
-As each cell has a side length of the maximum diameter, at 4 objects per cell, we have a level of clustering much less likely to be simulated -- yet, despite the unrealistic levels of clustering, we sustain a non-quadratic time complexity, illustrating the efficiency of the multithreaded algorithm from average to worst-case scenarios.
+As each cell has a side length of the maximum diameter, at 4 particles per cell, we have a level of clustering much less likely to be simulated -- yet, despite the unrealistic levels of clustering, we sustain a non-quadratic time complexity, illustrating the efficiency of the multithreaded algorithm from average to worst-case scenarios.
