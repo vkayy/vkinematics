@@ -16,7 +16,7 @@ constexpr int32_t FRAMERATE_LIMIT = 60;
 constexpr int32_t THREAD_COUNT = 3;
 constexpr int32_t SUBSTEPS = 8;
 
-constexpr int8_t COLLISION_RESOLVER = 0;
+constexpr int8_t COLLISION_RESOLVER = 1;
 
 bool GRAVITY_ON = true;
 
@@ -58,7 +58,12 @@ int main() {
         squish_factor
     )
     simulation.spawnSquare(
-        spawn_positin,
+        spawn_position,
+        side_length
+    )
+    simulation.spawnRigidBody(
+        spawn_position,
+        side_count,
         side_length
     )
     */
@@ -66,7 +71,7 @@ int main() {
         20,
         {0.2f, 0.6f},
         0.005f,
-        10.0f
+        30.0f
     );
     simulation.spawnFree(
         10,
@@ -80,8 +85,9 @@ int main() {
         4.0f,
         0.5f
     );
-    simulation.spawnSquare(
+    simulation.spawnRigidBody(
         {0.1, 0.3f},
+        4,
         40.0f
     );
     simulation.spawnSoftBody(
@@ -97,7 +103,7 @@ int main() {
         20,
         {0.8f, 0.6f},
         0.005f,
-        10.0f
+        30.0f
     );
     simulation.idle();
     return 0;

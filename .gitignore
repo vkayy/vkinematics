@@ -1,3 +1,7 @@
 build/
 .vscode/
 src/test/benchmark_simulation.csv
+.cache/
+CMAKEFILES/
+compile_commands.json
+**/.DS_Store

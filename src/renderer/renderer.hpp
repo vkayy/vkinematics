@@ -61,14 +61,14 @@ public:
             target.draw(polygon, soft_body.points, sf::TriangleFan);
         }
 
-        const auto &squares = solver.squares;
-        for (const auto &square : squares) {
-            sf::Vertex polygon[square.points];
-            for (int32_t i=0; i<square.points; i++) {
-                polygon[i].position = square.vertices[i]->curr_position;
-                polygon[i].color = square.vertices[i]->colour;
+        const auto &rigid_bodies = solver.rigid_bodies;
+        for (const auto &rigid_body : rigid_bodies) {
+            sf::Vertex polygon[rigid_body.points];
+            for (int32_t i=0; i<rigid_body.points; i++) {
+                polygon[i].position = rigid_body.vertices[i]->curr_position;
+                polygon[i].color = rigid_body.vertices[i]->colour;
             }
-            target.draw(polygon, square.points, sf::TriangleFan);
+            target.draw(polygon, rigid_body.points, sf::TriangleFan);
         }
     }
 private:
