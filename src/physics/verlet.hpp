@@ -86,50 +86,6 @@ struct VerletConstraint {
   }
 };
 
-struct VerletSpring {
-  VerletObject &object_1;
-  VerletObject &object_2;
-  float target_distance;
-  float spring_constant;
-  float damping_factor;
-  bool in_body = false;
-
-  VerletSpring(VerletObject &object_1, VerletObject &object_2,
-               float target_distance, float spring_constant = 0.5f,
-               float damping_factor = 0.9f)
-      : object_1{object_1}, object_2{object_2},
-        target_distance{target_distance}, spring_constant{spring_constant},
-        damping_factor{damping_factor} {}
-
-  void apply() {
-    if (object_1.fixed && object_2.fixed)
-      return;
-    const sf::Vector2f displacement =
-        object_1.curr_position - object_2.curr_position;
-    const float distance =
-        sqrt(displacement.x * displacement.x + displacement.y * displacement.y);
-    const float spring_force_magnitude =
-        spring_constant * (distance - target_distance);
-    const sf::Vector2f spring_force =
-        displacement / distance * spring_force_magnitude;
-    const sf::Vector2f velocity1 =
-        object_1.curr_position - object_1.last_position;
-    const sf::Vector2f velocity2 =
-        object_2.curr_position - object_2.last_position;
-    const sf::Vector2f relative_velocity = velocity1 - velocity2;
-    const sf::Vector2f damping_force = relative_velocity * damping_factor;
-    const sf::Vector2f total_force = spring_force + damping_force;
-    if (object_1.fixed && !object_2.fixed) {
-      object_2.curr_position -= total_force;
-    } else if (!object_1.fixed && object_2.fixed) {
-      object_1.curr_position += total_force;
-    } else {
-      object_1.curr_position += 0.5f * total_force;
-      object_2.curr_position -= 0.5f * total_force;
-    }
-  }
-};
-
 struct VerletSoftBody {
   std::vector<VerletObject *> vertices;
   std::vector<VerletConstraint *> segments;

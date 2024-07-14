@@ -32,13 +32,11 @@ struct Solver {
     grid.clear();
     objects.reserve(max_object_count);
     constraints.reserve(max_object_count);
-    springs.reserve(max_object_count);
   }
 
 public:
   std::vector<VerletObject> objects;
   std::vector<VerletConstraint> constraints;
-  std::vector<VerletSpring> springs;
   std::vector<VerletSoftBody> soft_bodies;
   std::vector<VerletRigidBody> rigid_bodies;
   int32_t body_count = 0;
@@ -53,11 +51,6 @@ public:
   VerletConstraint &addConstraint(VerletObject &object1, VerletObject &object2,
                                   float target_distance) {
     return constraints.emplace_back(object1, object2, target_distance);
-  }
-
-  VerletSpring &addSpring(VerletObject &object1, VerletObject &object2,
-                          float target_distance) {
-    return springs.emplace_back(object1, object2, target_distance);
   }
 
   VerletSoftBody &addSoftBody(std::vector<VerletObject *> vertices,
@@ -78,7 +71,6 @@ public:
     for (int32_t i = 0; i < substeps; i++) {
       solveCollisionsNaive();
       updateConstraints();
-      updateSprings();
       updateSoftBodies();
       updateObjects(step_dt);
     }
@@ -91,7 +83,6 @@ public:
       addObjectsToGrid();
       solveCollisionsCellular();
       updateConstraints();
-      updateSprings();
       updateSoftBodies();
       updateObjects(step_dt);
     }
@@ -104,7 +95,6 @@ public:
       addObjectsToGrid();
       solveCollisionsThreaded();
       updateConstraints();
-      updateSprings();
       updateSoftBodies();
       updateObjectsThreaded(step_dt);
     }
@@ -357,16 +347,6 @@ private:
     for (int32_t i = 0; i < JAKOBSEN_ITERATIONS; i++) {
       for (auto &constraint : constraints) {
         constraint.apply();
-      }
-    }
-  }
-
-  void updateSprings() {
-    if (springs.empty())
-      return;
-    for (int32_t i = 0; i < JAKOBSEN_ITERATIONS; i++) {
-      for (auto &spring : springs) {
-        spring.apply();
       }
     }
   }
