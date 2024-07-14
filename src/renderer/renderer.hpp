@@ -40,17 +40,6 @@ public:
             target.draw(constraint_line, 2, sf::Lines);
         }
 
-        sf::Vertex spring_line[2];
-        const auto &springs = solver.springs;
-        for (const auto &spring : springs) {
-            if (spring.in_body) continue;
-            spring_line[0].position = spring.object_1.curr_position;
-            spring_line[1].position = spring.object_2.curr_position;
-            spring_line[0].color = sf::Color::Black;
-            spring_line[1].color = sf::Color::Black;
-            target.draw(spring_line, 2, sf::Lines);
-        }
-
         const auto &soft_bodies = solver.soft_bodies;
         for (const auto &soft_body : soft_bodies) {
             sf::Vertex polygon[soft_body.points];
