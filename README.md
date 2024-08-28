@@ -1,4 +1,4 @@
-# Multithreaded Physics Engine
+# `vkinematics`
 
 This is a physics engine that can deterministically resolve particle interactions using a custom-written Verlet integration library, optimised with spatial partitioning and multithreading.
 
